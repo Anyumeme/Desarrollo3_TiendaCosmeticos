@@ -1,0 +1,10 @@
+## Visual Studio y .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Archivos Binarios de Datos y Logs generados en tiempo de ejecucion
+*.bin
+

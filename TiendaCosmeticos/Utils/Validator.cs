@@ -11,8 +11,6 @@ namespace TiendaCosmeticos.Util
         private readonly string _promptMessage;
         protected readonly List<Func<string, (bool IsValid, string ErrorMessage)>> _rules = new();
 
-        private static readonly Regex CedulaRegex = new(@"^\d{3}-?\d{6}-?\d{4}[A-Za-z]$", RegexOptions.Compiled);
-
         public Validator(string promptMessage)
         {
             _promptMessage = promptMessage;
@@ -45,10 +43,10 @@ namespace TiendaCosmeticos.Util
             return selectedOption >= x && selectedOption <= y;
         }
 
-        // Validador de cedula nicaraguense con fecha real en el centro (DDMMAA)
+        // Validador de cedula nicaraguense apoyado en CedulaHelper
         public Validator FormatoCedula(string errorMessage = "Error: Formato de cedula invalido. Debe ser 000-ddMMyy-0000X con fecha real")
         {
-            _rules.Add(input => (ValidarCedula(input, out _, out _), errorMessage));
+            _rules.Add(input => (CedulaHelper.ValidarCedula(input, out _, out _), errorMessage));
             return this;
         }
 
@@ -207,46 +205,15 @@ namespace TiendaCosmeticos.Util
             return this;
         }
 
-        // Metodo reutilizable para verificar la estructura y fecha real de una cedula
+        // Metodos estaticos delegados a CedulaHelper para compatibilidad total
         public static bool ValidarCedula(string? texto, out string cedulaFormateada, out DateTime fechaNacimiento)
         {
-            cedulaFormateada = string.Empty;
-            fechaNacimiento = DateTime.MinValue;
-
-            if (string.IsNullOrWhiteSpace(texto))
-                return false;
-
-            string entrada = texto.Trim().ToUpper();
-
-            if (!CedulaRegex.IsMatch(entrada))
-                return false;
-
-            string limpia = entrada.Replace("-", "");
-            string parteFecha = limpia.Substring(3, 6);
-
-            // Validamos que sea una fecha de calendario real (DDMMAA)
-            if (!DateTime.TryParseExact(parteFecha, "ddMMyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaExtraida))
-            {
-                return false;
-            }
-
-            // Ajuste por si el anio de 2 digitos queda en el futuro
-            if (fechaExtraida > DateTime.Today)
-            {
-                fechaExtraida = fechaExtraida.AddYears(-100);
-            }
-
-            fechaNacimiento = fechaExtraida;
-            cedulaFormateada = $"{limpia[0..3]}-{limpia[3..9]}-{limpia[9..14]}";
-            return true;
+            return CedulaHelper.ValidarCedula(texto, out cedulaFormateada, out fechaNacimiento);
         }
 
-        // Formatea cualquier cedula valida a formato estandar con guiones
         public static string FormatearCedula(string raw)
         {
-            string limpia = (raw ?? string.Empty).Replace("-", "").Trim().ToUpper();
-            if (limpia.Length != 14) return raw ?? string.Empty;
-            return $"{limpia[0..3]}-{limpia[3..9]}-{limpia[9..14]}";
+            return CedulaHelper.FormatearCedula(raw);
         }
 
         public string ReadAndValidate()
@@ -276,7 +243,7 @@ namespace TiendaCosmeticos.Util
         public string ReadCedula()
         {
             string raw = ReadAndValidate();
-            return FormatearCedula(raw);
+            return CedulaHelper.FormatearCedula(raw);
         }
 
         // Lee contrasenia mostrando asteriscos y aplicando las reglas encadenadas

@@ -169,45 +169,6 @@ namespace TiendaCosmeticos.Services
                 _ => empleados
             };
         }
-
-        // Cancela el contrato activo de un empleado para permitir su desactivacion
-        public void CancelarContratoEmpleado(string idEmpleado)
-        {
-            Empleado empleado = BuscarEmpleado(idEmpleado);
-            Contrato? contrato = _contratoRepository.GetContratoActivo(empleado.Cedula);
-            if (contrato == null)
-                throw new EstadoYaAsignadoException("Contrato", false);
-
-            contrato.CancelarContrato();
-        }
-
-        // Reactiva el contrato laboral de un empleado
-        public void ReactivarContratoEmpleado(string idEmpleado)
-        {
-            Empleado empleado = BuscarEmpleado(idEmpleado);
-            Contrato? contrato = _contratoRepository.GetByEmpleadoCedula(empleado.Cedula);
-            if (contrato == null)
-                throw new RegistroNoEncontradoException("Contrato", empleado.Id);
-
-            if (contrato.Activo)
-                throw new EstadoYaAsignadoException("Contrato", true);
-
-            contrato.ReactivarContrato();
-        }
-
-        // Obtiene los contratos vigentes de los empleados activos para la planilla mensual
-        public List<Contrato> ObtenerPlanillaActiva()
-        {
-            return _contratoRepository.GetAll()
-                .Where(c => c.Activo && c.Empleado != null && c.Empleado.Estado)
-                .ToList();
-        }
-
-        // Calcula el monto total mensual de la planilla de trabajadores activos
-        public decimal CalcularTotalPlanilla()
-        {
-            return ObtenerPlanillaActiva().Sum(c => c.SalarioMensual);
-        }
     }
 }
 

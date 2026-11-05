@@ -41,20 +41,21 @@ namespace TiendaCosmeticos.Controllers
                     "Gestion de Bodegueros (Agregar, Editar, Estado, Listar)",
                     "Gestion de Clientas (Agregar, Editar, Estado, Listar)",
                     "Gestion de Productos (Agregar, Editar, Estado, Listar)",
+                    "Gestion de Ventas (Editar Estado, Listar)",
                     "Consultar Planilla de Pagos Mensuales",
                     "Auditoria y Consulta de Logs del Sistema",
                     "Cerrar sesion (Volver al menu principal)"
                 );
 
-                string input = new Validator("Ingrese su opcion (1-7): ")
+                string input = new Validator("Ingrese su opcion (1-8): ")
                     .NotEmpty()
                     .OnlyDigits()
-                    .InputBetweenXandY(1, 7)
+                    .InputBetweenXandY(1, 8)
                     .ReadAndValidate();
 
                 int opcion = int.Parse(input);
 
-                if (opcion == 7)
+                if (opcion == 8)
                 {
                     salir = true;
                 }

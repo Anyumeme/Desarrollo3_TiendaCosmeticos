@@ -23,13 +23,19 @@ namespace TiendaCosmeticos.Repositories
         public Administrador? GetByUser(string user)
         {
             if (string.IsNullOrWhiteSpace(user)) return null;
-            return _administradores.FirstOrDefault(a => a.User.Equals(user, StringComparison.OrdinalIgnoreCase));
+            return _administradores.FirstOrDefault(a => string.Equals(a?.User, user.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public Administrador? GetByCedula(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _administradores.FirstOrDefault(a => a.Cedula.Equals(cedula, StringComparison.OrdinalIgnoreCase));
+            return _administradores.FirstOrDefault(a => string.Equals(a?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        public Administrador? GetById(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            return _administradores.FirstOrDefault(a => string.Equals(a?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

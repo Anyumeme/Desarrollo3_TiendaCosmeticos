@@ -205,17 +205,6 @@ namespace TiendaCosmeticos.Util
             return this;
         }
 
-        // Metodos estaticos delegados a CedulaHelper para compatibilidad total
-        public static bool ValidarCedula(string? texto, out string cedulaFormateada, out DateTime fechaNacimiento)
-        {
-            return CedulaHelper.ValidarCedula(texto, out cedulaFormateada, out fechaNacimiento);
-        }
-
-        public static string FormatearCedula(string raw)
-        {
-            return CedulaHelper.FormatearCedula(raw);
-        }
-
         public string ReadAndValidate()
         {
             while (true)
@@ -239,12 +228,15 @@ namespace TiendaCosmeticos.Util
             }
         }
 
-        // Lee la entrada, valida y devuelve la cedula limpia con guiones y letra mayuscula
-        public string ReadCedula()
+        // Lee la entrada, valida y devuelve la cedula limpia (permitiendo extraer la fecha para el Command)
+        public string ReadCedula(out DateTime fechaNacimiento)
         {
             string raw = ReadAndValidate();
-            return CedulaHelper.FormatearCedula(raw);
+            CedulaHelper.ValidarCedula(raw, out string formateada, out fechaNacimiento);
+            return formateada;
         }
+
+        public string ReadCedula() => ReadCedula(out _);
 
         // Lee contrasenia mostrando asteriscos y aplicando las reglas encadenadas
         public string ReadPassword()

@@ -23,13 +23,13 @@ namespace TiendaCosmeticos.Repositories
         public Cliente? GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
-            return _clientes.FirstOrDefault(c => c.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _clientes.FirstOrDefault(c => string.Equals(c?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public Cliente? GetByCedula(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _clientes.FirstOrDefault(c => c.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _clientes.FirstOrDefault(c => string.Equals(c?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

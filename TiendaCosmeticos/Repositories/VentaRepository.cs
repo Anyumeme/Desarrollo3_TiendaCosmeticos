@@ -30,7 +30,7 @@ namespace TiendaCosmeticos.Repositories
         {
             if (string.IsNullOrWhiteSpace(cedulaCliente)) return new List<Venta>();
             return _ventas
-                .Where(v => v.Cliente != null && v.Cliente.Cedula.Equals(cedulaCliente.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(v => string.Equals(v?.Cliente?.Cedula, cedulaCliente.Trim(), StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 
@@ -38,7 +38,7 @@ namespace TiendaCosmeticos.Repositories
         {
             if (string.IsNullOrWhiteSpace(cedulaVendedor)) return new List<Venta>();
             return _ventas
-                .Where(v => v.Vendedor != null && v.Vendedor.Cedula.Equals(cedulaVendedor.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(v => string.Equals(v?.Vendedor?.Cedula, cedulaVendedor.Trim(), StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 

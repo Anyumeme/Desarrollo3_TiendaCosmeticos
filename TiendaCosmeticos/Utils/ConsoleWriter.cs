@@ -63,7 +63,7 @@ namespace TiendaCosmeticos.Util
 
         public void Clear()
         {
-            Console.Clear();
+                Console.Clear();    
         }
     }
 }

@@ -29,13 +29,13 @@ namespace TiendaCosmeticos.Repositories
         public Contrato? GetByEmpleadoCedula(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _contratos.FirstOrDefault(c => c.Empleado != null && c.Empleado.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _contratos.FirstOrDefault(c => string.Equals(c?.Empleado?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public Contrato? GetContratoActivo(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _contratos.FirstOrDefault(c => c.Activo && c.Empleado != null && c.Empleado.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _contratos.FirstOrDefault(c => c != null && c.Activo && string.Equals(c.Empleado?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -23,19 +23,19 @@ namespace TiendaCosmeticos.Repositories
         public Empleado? GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
-            return _empleados.FirstOrDefault(e => e.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _empleados.FirstOrDefault(e => string.Equals(e?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public Empleado? GetByCedula(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _empleados.FirstOrDefault(e => e.Cedula.Equals(cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _empleados.FirstOrDefault(e => string.Equals(e?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public Empleado? GetByUser(string user)
         {
             if (string.IsNullOrWhiteSpace(user)) return null;
-            return _empleados.FirstOrDefault(e => e.User.Equals(user.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _empleados.FirstOrDefault(e => string.Equals(e?.User, user.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public List<Empleado> GetVendedores()

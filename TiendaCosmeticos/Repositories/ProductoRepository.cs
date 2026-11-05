@@ -23,14 +23,14 @@ namespace TiendaCosmeticos.Repositories
         public Producto? GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
-            return _productos.FirstOrDefault(p => p.Id.Equals(id.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _productos.FirstOrDefault(p => string.Equals(p?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
         }
 
         public List<Producto> GetByMarca(string marca)
         {
             if (string.IsNullOrWhiteSpace(marca)) return new List<Producto>();
             return _productos
-                .Where(p => p.Marca.Equals(marca.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(p => string.Equals(p?.Marca, marca.Trim(), StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
 

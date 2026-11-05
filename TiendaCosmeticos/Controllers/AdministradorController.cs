@@ -39,7 +39,7 @@ namespace TiendaCosmeticos.Controllers
                     "Seleccione una opcion:",
                     "Gestion de Vendedores (Agregar, Editar, Estado, Listar)",
                     "Gestion de Bodegueros (Agregar, Editar, Estado, Listar)",
-                    "Gestion de Clientas (Agregar, Editar, Estado, Listar)",
+                    "Gestion de Clientes (Agregar, Editar, Estado, Listar)",
                     "Gestion de Productos (Agregar, Editar, Estado, Listar)",
                     "Gestion de Ventas (Editar Estado, Listar)",
                     "Consultar Planilla de Pagos Mensuales",

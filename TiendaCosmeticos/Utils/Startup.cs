@@ -13,6 +13,7 @@ namespace TiendaCosmeticos.Util
         private static ClienteRepository? _clienteRepository;
         private static ProductoRepository? _productoRepository;
         private static ContratoRepository? _contratoRepository;
+        private static VentaRepository? _ventaRepository;
         private static IConsoleWriter? _consoleWriter;
         private static bool _seedsCargadas = false;
 
@@ -32,6 +33,7 @@ namespace TiendaCosmeticos.Util
             if (_clienteRepository == null) _clienteRepository = new ClienteRepository();
             if (_productoRepository == null) _productoRepository = new ProductoRepository();
             if (_contratoRepository == null) _contratoRepository = new ContratoRepository();
+            if (_ventaRepository == null) _ventaRepository = new VentaRepository();
 
             if (!_seedsCargadas)
             {
@@ -76,10 +78,22 @@ namespace TiendaCosmeticos.Util
             return _contratoRepository!;
         }
 
+        public static VentaRepository GetVentaRepository()
+        {
+            AsegurarRepositorios();
+            return _ventaRepository!;
+        }
+
         public static AuthService InitAuthService()
         {
             AsegurarRepositorios();
             return new AuthService(_adminRepository!, _empleadoRepository!);
+        }
+
+        public static VentaServices InitVentaServices()
+        {
+            AsegurarRepositorios();
+            return new VentaServices(_ventaRepository!, _productoRepository!, _clienteRepository!);
         }
 
         public static AuthController InitAuthController(int maxIntentos = 3)

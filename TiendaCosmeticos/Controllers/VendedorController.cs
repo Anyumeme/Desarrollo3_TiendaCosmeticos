@@ -27,8 +27,8 @@ namespace TiendaCosmeticos.Controllers
                 _writer.DisplayMenu(
                     "Seleccione una opcion:",
                     "Realizar venta de productos",
-                    "Registrar nueva clienta",
-                    "Buscar / Listar clientas",
+                    "Registrar nuevo cliente",
+                    "Buscar / Listar clientes",
                     "Buscar productos disponibles",
                     "Consultar historial de ventas",
                     "Cerrar sesion (Volver al login)"

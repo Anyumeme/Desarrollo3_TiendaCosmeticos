@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using TiendaCosmeticos.Models;
 
 namespace TiendaCosmeticos.Repositories
@@ -22,6 +22,7 @@ namespace TiendaCosmeticos.Repositories
 
         public Venta? GetById(Guid id)
         {
+            if (id == Guid.Empty) return null;
             return _ventas.FirstOrDefault(v => v.Id == id);
         }
 
@@ -45,6 +46,7 @@ namespace TiendaCosmeticos.Repositories
         {
             return _ventas.Where(v => v.Estado).ToList();
         }
+
         public List<Venta> GetAnuladas()
         {
             return _ventas.Where(v => !v.Estado).ToList();

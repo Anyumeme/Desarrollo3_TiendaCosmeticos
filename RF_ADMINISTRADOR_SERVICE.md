@@ -1,7 +1,7 @@
 # Requisitos Funcionales (RF) - AdministradorService
 
 ## 1. Descripcion General
-El componente `AdministradorService` concentra toda la logica de negocio correspondiente a la gestion global de la tienda de cosmeticos. Es el unico servicio con permisos completos para administrar personal (vendedores y bodegueros), clientas, contratos laborales, desactivacion de productos y auditoria.
+El componente `AdministradorService` concentra toda la logica de negocio correspondiente a la gestion global de la tienda de cosmeticos. Es el unico servicio con permisos completos para administrar personal (vendedores y bodegueros), Clientes, contratos laborales, desactivacion de productos y auditoria.
 
 ### Dependencias requeridas en el constructor
 Para operar, este servicio debe recibir e inyectar los siguientes repositorios:
@@ -83,35 +83,35 @@ Para operar, este servicio debe recibir e inyectar los siguientes repositorios:
 
 ---
 
-### Modulo C: Gestion de Clientas
+### Modulo C: Gestion de Clientes
 
-* **RF-11: Registrar Nueva Clienta**
+* **RF-11: Registrar Nueva Cliente**
   - Entrada: Cedula, Nombre, Celular, Fecha de Nacimiento, Genero.
   - Reglas de negocio:
-    - A la clienta NO se le solicita correo ni direccion domiciliar.
+    - A la Cliente NO se le solicita correo ni direccion domiciliar.
     - Generar identificador correlativo con prefijo 'CLI-' (ejemplo: CLI-01).
-    - Validar edad minima: la clienta debe tener al menos 16 anios cumplidos (`EdadMinimaException`).
+    - Validar edad minima: la Cliente debe tener al menos 16 anios cumplidos (`EdadMinimaException`).
     - Validar que la cedula no exista en el sistema (`CedulaDuplicadaException`).
     - Asignar fecha de registro automatica (`DateTime.Now`).
 
-* **RF-12: Editar Clienta Existente**
-  - Entrada: ID de la clienta, nuevos valores de Nombre, Celular, Genero, Fecha Nacimiento, nueva Cedula opcional.
+* **RF-12: Editar Cliente Existente**
+  - Entrada: ID de la Cliente, nuevos valores de Nombre, Celular, Genero, Fecha Nacimiento, nueva Cedula opcional.
   - Reglas de negocio:
     - Buscar por ID (`RegistroNoEncontradoException`).
     - Bloquear edicion si esta inactiva (`RegistroInactivoException`).
     - ID inmutable.
     - Validar que la nueva cedula no coincida con otro registro existente.
 
-* **RF-13: Cambiar Estado de Clienta (Eliminacion Logica / Reactivacion)**
-  - Entrada: ID de la clienta, nuevo estado.
+* **RF-13: Cambiar Estado de Cliente (Eliminacion Logica / Reactivacion)**
+  - Entrada: ID de la Cliente, nuevo estado.
   - Reglas de negocio:
     - Verificar que no tenga ya el estado solicitado (`EstadoYaAsignadoException`).
     - Conmutar estado `Activo` / `Inactivo`.
 
-* **RF-14: Buscar Clienta (por ID o Cedula)**
+* **RF-14: Buscar Cliente (por ID o Cedula)**
   - Localiza el registro y retorna su ficha con el estado actual visible.
 
-* **RF-15: Listar Clientas con Filtros**
+* **RF-15: Listar Clientes con Filtros**
   - Retornar sublistas segun parametro: `Todas`, `SoloActivas`, `SoloInactivas`.
 
 ---
@@ -166,7 +166,7 @@ Para operar, este servicio debe recibir e inyectar los siguientes repositorios:
 | Cedula repetida en empleado o cliente | `CedulaDuplicadaException` | La cedula ya pertenece a otro registro |
 | Nombre de usuario ya en uso para login | `UsuarioDuplicadoException` | El usuario ya existe en el sistema |
 | Vendedor o bodeguero menor de 18 anios | `EdadMinimaException` | Minimo 18 anios para empleados |
-| Clienta menor de 16 anios | `EdadMinimaException` | Minimo 16 anios para clientas |
+| Cliente menor de 16 anios | `EdadMinimaException` | Minimo 16 anios para Clientes |
 | Empleado con contrato activo al desactivar | `DependenciaActivaException` | Posee contrato laboral vigente |
 | Intentar reactivar cosmetico caducado | `ProductoVencidoException` | Producto vencido, riesgo sanitario |
 

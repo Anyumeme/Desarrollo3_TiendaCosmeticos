@@ -1,14 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace TiendaCosmeticos.Models
 {
     public class Venta
     {
         public Guid Id { get; private set; }
-        public Cliente Cliente { get; private set; }
-        public Empleado Vendedor { get; private set; }
+        public Cliente Cliente { get; private set; } = null!;
+        public Empleado Vendedor { get; private set; } = null!;
         public DateTime Fecha { get; private set; }
         public bool Estado { get; private set; } = true;
         public List<DetalleVenta> Detalles { get; private set; } = new List<DetalleVenta>();
@@ -21,6 +21,7 @@ namespace TiendaCosmeticos.Models
             Cliente = cliente;
             Vendedor = vendedor;
             Fecha = fecha;
+            Estado = true;
         }
 
         public void AgregarDetalle(Producto producto, int cantidad, decimal precioUnitario)
@@ -33,6 +34,5 @@ namespace TiendaCosmeticos.Models
         {
             Estado = false;
         }
-
     }
 }

@@ -77,7 +77,7 @@ namespace TiendaCosmeticos.Data
                 }
             }
 
-            // 4. Clientas de prueba
+            // 4. Clientes de prueba
             if (clienteRepo != null && clienteRepo.GetAll().Count == 0)
             {
                 Cliente cliente1 = new Cliente(

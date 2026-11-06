@@ -37,25 +37,23 @@ namespace TiendaCosmeticos.Controllers
 
                 _writer.DisplayMenu(
                     "Seleccione una opcion:",
-                    "Gestion de Vendedores (Agregar, Editar, Estado, Listar)",
-                    "Gestion de Bodegueros (Agregar, Editar, Estado, Listar)",
-                    "Gestion de Clientes (Agregar, Editar, Estado, Listar)",
-                    "Gestion de Productos (Agregar, Editar, Estado, Listar)",
-                    "Gestion de Ventas (Editar Estado, Listar)",
-                    "Consultar Planilla de Pagos Mensuales",
+                    "Gestion del Personal",
+                    "Gestion de Clientes",
+                    "Gestion de Productos",
+                    "Gestion de Ventas (Vender,Editar Estado, Listar)",
                     "Auditoria y Consulta de Logs del Sistema",
                     "Cerrar sesion (Volver al menu principal)"
                 );
 
-                string input = new Validator("Ingrese su opcion (1-8): ")
+                string input = new Validator("Ingrese su opcion (1-6): ")
                     .NotEmpty()
                     .OnlyDigits()
-                    .InputBetweenXandY(1, 8)
+                    .InputBetweenXandY(1, 6)
                     .ReadAndValidate();
 
                 int opcion = int.Parse(input);
 
-                if (opcion == 8)
+                if (opcion == 6)
                 {
                     salir = true;
                 }

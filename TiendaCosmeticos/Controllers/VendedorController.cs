@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using TiendaCosmeticos.Commands.Administrador.ClienteCommand;
+using TiendaCosmeticos.Commands.Bodega;
+using TiendaCosmeticos.Commands.Ventas;
 using TiendaCosmeticos.Models;
+using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Controllers
@@ -8,16 +13,32 @@ namespace TiendaCosmeticos.Controllers
     {
         private readonly Empleado _vendedor;
         private readonly IConsoleWriter _writer;
+        private readonly Dictionary<int, ICommand> _commands;
 
-        public VendedorController(Empleado vendedor, IConsoleWriter writer)
+        public VendedorController(
+            Empleado vendedor,
+            VentaServices ventaServices,
+            BodegaServices bodegaServices,
+            ClienteService clienteService,
+            IConsoleWriter writer)
         {
             _vendedor = vendedor;
             _writer = writer;
+
+            _commands = new Dictionary<int, ICommand>
+            {
+                { 1, new RealizarVentaCommand(_writer, ventaServices, bodegaServices, clienteService, _vendedor) },
+                { 2, new AgregarClienteCommand(_writer, clienteService) },
+                { 3, new ListarClienteCommand(_writer, clienteService) },
+                { 4, new BuscarProductoCommand(_writer, bodegaServices) },
+                { 5, new ConsultarVentasCommand(_writer, ventaServices) }
+            };
         }
 
         public void DisplayMenu()
         {
             bool salir = false;
+
             do
             {
                 _writer.Clear();
@@ -34,29 +55,24 @@ namespace TiendaCosmeticos.Controllers
                     "Cerrar sesion (Volver al login)"
                 );
 
-                string opcion = new Validator("Ingrese su opcion (1-6): ")
+                string input = new Validator("Ingrese su opcion (1-6): ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 6)
                     .ReadAndValidate();
 
-                switch (opcion)
+                int option = int.Parse(input);
+
+                if (option == 6)
                 {
-                    case "1":
-                    case "2":
-                    case "3":
-                    case "4":
-                    case "5":
-                        _writer.ShowMessage("\n[En construccion]");
-                        _writer.WaitForKey();
-                        break;
-                    case "6":
-                        salir = true;
-                        break;
+                    salir = true;
+                }
+                else if (_commands.TryGetValue(option, out ICommand? command))
+                {
+                    command.Execute();
                 }
 
             } while (!salir);
         }
     }
 }
-

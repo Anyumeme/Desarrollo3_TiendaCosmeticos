@@ -38,31 +38,31 @@ namespace TiendaCosmeticos.Data
             {
                 Empleado vendedor = new Empleado(
                     id: "VEN-01",
-                    cedula: "001-101095-0001A",
-                    nombre: "Ana Lopez",
-                    numeroCelular: 88881111,
-                    fechaNacimiento: new DateTime(1995, 10, 10),
-                    genero: Genero.Femenino,
-                    correoElectronico: "ana.lopez@tiendacosmeticos.com",
-                    direccion: "Managua, Colonia Centroamerica",
-                    estadoCivil: "Soltera",
-                    user: "ana",
-                    password: "Password123*",
+                    cedula: "001-110997-0041S",
+                    nombre: "Andrew Torrez",
+                    numeroCelular: 88061285,
+                    fechaNacimiento: new DateTime(1997, 09, 11),
+                    genero: Genero.Masculino,
+                    correoElectronico: "andrew.torrez@tiendacosmeticos.com",
+                    direccion: "Managua, Villa Canada",
+                    estadoCivil: "Soltero",
+                    user: "andrew",
+                    password: "12345678Ab*",
                     rol: Rol.Vendedor
                 );
 
                 Empleado bodeguero = new Empleado(
                     id: "BOD-01",
                     cedula: "001-200592-0002B",
-                    nombre: "Carlos Perez",
+                    nombre: "Humberto Oviedo",
                     numeroCelular: 87772222,
                     fechaNacimiento: new DateTime(1992, 5, 20),
                     genero: Genero.Masculino,
-                    correoElectronico: "carlos.perez@tiendacosmeticos.com",
+                    correoElectronico: "humberto.oviedo@tiendacosmeticos.com",
                     direccion: "Masaya, Barrio San Jeronimo",
                     estadoCivil: "Casado",
-                    user: "carlos",
-                    password: "Password123*",
+                    user: "humberto",
+                    password: "12345678Ab*",
                     rol: Rol.Bodeguero
                 );
 

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
 using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
 
-namespace TiendaCosmeticos.Commands.Administrador.Personal
+namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 {
     public class ConsultarPlanillaCommand : ICommand
     {

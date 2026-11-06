@@ -4,7 +4,7 @@ using TiendaCosmeticos.Models;
 using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
 
-namespace TiendaCosmeticos.Commands.Administrador.Personal
+namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 {
     public class CambiarEstadoPersonalCommand : ICommand
     {

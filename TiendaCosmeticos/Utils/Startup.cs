@@ -96,6 +96,54 @@ namespace TiendaCosmeticos.Util
             return new VentaServices(_ventaRepository!, _productoRepository!, _clienteRepository!);
         }
 
+        public static BodegaServices InitBodegaServices()
+        {
+            AsegurarRepositorios();
+            return new BodegaServices(_productoRepository!);
+        }
+
+        public static ClienteService InitClienteService()
+        {
+            AsegurarRepositorios();
+            return new ClienteService(_clienteRepository!, _empleadoRepository!, _adminRepository!);
+        }
+
+        public static EmpleadoService InitEmpleadoService()
+        {
+            AsegurarRepositorios();
+            return new EmpleadoService(_empleadoRepository!, _adminRepository!, _clienteRepository!, _contratoRepository!);
+        }
+
+        public static ContratoService InitContratoService()
+        {
+            AsegurarRepositorios();
+            return new ContratoService(_contratoRepository!, _empleadoRepository!);
+        }
+
+        public static PersonalController InitPersonalController()
+        {
+            IConsoleWriter writer = InitConsoleWriter();
+            return new PersonalController(InitEmpleadoService(), InitContratoService(), writer);
+        }
+
+        public static ClienteController InitClienteController()
+        {
+            IConsoleWriter writer = InitConsoleWriter();
+            return new ClienteController(InitClienteService(), writer, InitVentaServices());
+        }
+
+        public static ProductoController InitProductoController()
+        {
+            IConsoleWriter writer = InitConsoleWriter();
+            return new ProductoController(InitBodegaServices(), writer);
+        }
+
+        public static VentaController InitVentaController(Administrador admin)
+        {
+            IConsoleWriter writer = InitConsoleWriter();
+            return new VentaController(admin, InitVentaServices(), InitBodegaServices(), InitClienteService(), writer);
+        }
+
         public static AuthController InitAuthController(int maxIntentos = 3)
         {
             AuthService authService = InitAuthService();
@@ -108,21 +156,38 @@ namespace TiendaCosmeticos.Util
             AsegurarRepositorios();
             IConsoleWriter writer = InitConsoleWriter();
             Administrador adminActual = admin ?? _adminRepository!.GetAll()[0];
-            return new AdministradorController(adminActual, writer);
+
+            PersonalController personalController = InitPersonalController();
+            ClienteController clienteController = InitClienteController();
+            ProductoController productoController = InitProductoController();
+            VentaController ventaController = InitVentaController(adminActual);
+
+            return new AdministradorController(
+                adminActual,
+                personalController,
+                clienteController,
+                productoController,
+                ventaController,
+                writer
+            );
         }
 
         public static VendedorController InitVendedorController(Empleado vendedor)
         {
             AsegurarRepositorios();
             IConsoleWriter writer = InitConsoleWriter();
-            return new VendedorController(vendedor, writer);
+            VentaServices ventaServices = InitVentaServices();
+            BodegaServices bodegaServices = InitBodegaServices();
+            ClienteService clienteService = InitClienteService();
+            return new VendedorController(vendedor, ventaServices, bodegaServices, clienteService, writer);
         }
 
         public static BodegueroController InitBodegueroController(Empleado bodeguero)
         {
             AsegurarRepositorios();
             IConsoleWriter writer = InitConsoleWriter();
-            return new BodegueroController(bodeguero, writer);
+            BodegaServices bodegaServices = InitBodegaServices();
+            return new BodegueroController(bodeguero, bodegaServices, writer);
         }
     }
 }

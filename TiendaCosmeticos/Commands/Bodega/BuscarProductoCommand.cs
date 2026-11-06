@@ -37,7 +37,7 @@ namespace TiendaCosmeticos.Commands.Bodega
                     "Buscar por marca",
                     "Mostrar solo productos activos",
                     "Mostrar solo productos inactivos",
-                    "Volver al menu de bodega");
+                    "Volver al menu anterior");
 
                 string opcion = new Validator("Seleccione (1-6): ")
                     .NotEmpty()

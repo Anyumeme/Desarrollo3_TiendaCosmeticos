@@ -23,31 +23,53 @@ namespace TiendaCosmeticos.Commands.Administrador.ClienteCommand
             _writer.Clear();
             _writer.ShowHeader("CONSULTA Y LISTADO DE CLIENTES");
 
-            // 1. Menu de seleccion de filtro
+            // 1. Menu de seleccion de filtro y busqueda
             _writer.DisplayMenu(
-                "Seleccione el filtro a aplicar:",
+                "Seleccione una opcion de consulta:",
+                "Buscar cliente por ID o Cedula",
                 "Listar todos los clientes (Activos e Inactivos)",
                 "Listar solo clientes activos",
                 "Listar solo clientes inactivos",
                 "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-4): ")
+            string opcion = new Validator("Ingrese su opcion (1-5): ")
                 .NotEmpty()
                 .OnlyDigits()
-                .InputBetweenXandY(1, 4)
+                .InputBetweenXandY(1, 5)
                 .ReadAndValidate();
 
-            // Opcion 4: Salir al menu anterior
-            if (opcion == "4")
+            // Opcion 5: Salir al menu anterior
+            if (opcion == "5")
             {
+                return;
+            }
+
+            // Opcion 1: Busqueda puntual
+            if (opcion == "1")
+            {
+                string criterio = new Validator("\nIngrese el ID o Cedula del cliente a buscar: ")
+                    .NotEmpty()
+                    .ReadAndValidate();
+
+                try
+                {
+                    Cliente cliente = _clienteService.BuscarCliente(criterio);
+                    MostrarFichaCliente(cliente);
+                }
+                catch (TiendaException ex)
+                {
+                    _writer.ShowError(ex.Message);
+                }
+
+                _writer.WaitForKey();
                 return;
             }
 
             string filtro = opcion switch
             {
-                "2" => "Activos",
-                "3" => "Inactivos",
+                "3" => "Activos",
+                "4" => "Inactivos",
                 _ => "Todos"
             };
 
@@ -96,6 +118,21 @@ namespace TiendaCosmeticos.Commands.Administrador.ClienteCommand
             }
 
             _writer.WaitForKey();
+        }
+
+        private void MostrarFichaCliente(Cliente cliente)
+        {
+            string estadoTexto = cliente.Estado ? "ACTIVO" : "INACTIVO";
+            _writer.ShowMessage("\n--- Informacion del Cliente ---");
+            _writer.ShowMessage($"ID:                 {cliente.Id}");
+            _writer.ShowMessage($"Nombre completo:    {cliente.Nombre}");
+            _writer.ShowMessage($"Cedula:             {cliente.Cedula}");
+            _writer.ShowMessage($"Fecha Nacimiento:   {cliente.FechaNacimiento:dd/MM/yyyy} ({cliente.CalcularEdad()} anos)");
+            _writer.ShowMessage($"Telefono / Celular: {cliente.NumeroCelular}");
+            _writer.ShowMessage($"Genero:             {cliente.Genero}");
+            _writer.ShowMessage($"Fecha de Registro:  {cliente.FechaRegistro:dd/MM/yyyy HH:mm}");
+            _writer.ShowMessage($"Estado en sistema:  {estadoTexto}");
+            _writer.ShowMessage(new string('-', 50));
         }
 
         public void Undo()

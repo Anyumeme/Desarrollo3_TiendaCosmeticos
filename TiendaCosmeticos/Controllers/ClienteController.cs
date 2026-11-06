@@ -7,7 +7,7 @@ using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Controllers
 {
-    public class ClienteController : IController
+    public class ClienteController : IController, ICommand
     {
         private readonly ClienteService _clienteService;
         private readonly IConsoleWriter _writer;
@@ -65,6 +65,15 @@ namespace TiendaCosmeticos.Controllers
                 }
 
             } while (!exitMenu);
+        }
+
+        public void Execute()
+        {
+            DisplayMenu();
+        }
+
+        public void Undo()
+        {
         }
     }
 }

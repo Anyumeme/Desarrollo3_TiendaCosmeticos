@@ -30,14 +30,60 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 "Listar solo personal activo",
                 "Listar solo personal inactivo",
                 "Listar solo Vendedores",
-                "Listar solo Bodegueros"
+                "Listar solo Bodegueros",
+                "Buscar empleado por ID o Cedula",
+                "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-5): ")
+            string opcion = new Validator("Ingrese su opcion (1-7): ")
                 .NotEmpty()
                 .OnlyDigits()
-                .InputBetweenXandY(1, 5)
+                .InputBetweenXandY(1, 7)
                 .ReadAndValidate();
+
+            // Opcion 7: Salir al menu anterior
+            if (opcion == "7")
+            {
+                return;
+            }
+
+            // Busqueda individual puntual por ID o Cedula
+            if (opcion == "6")
+            {
+                string criterio = new Validator("\nIngrese el ID o Cedula a buscar: ")
+                    .NotEmpty()
+                    .ReadAndValidate();
+
+                try
+                {
+                    Empleado emp = _empleadoService.BuscarEmpleado(criterio);
+
+                    _writer.ShowMessage("\n--- Ficha del Empleado ---");
+                    _writer.ShowMessage($"ID:                 {emp.Id}");
+                    _writer.ShowMessage($"Cargo:              {emp.Rol}");
+                    _writer.ShowMessage($"Nombre:             {emp.Nombre}");
+                    _writer.ShowMessage($"Cedula:             {emp.Cedula}");
+                    _writer.ShowMessage($"Celular:            {emp.NumeroCelular}");
+                    _writer.ShowMessage($"Genero:             {emp.Genero}");
+                    _writer.ShowMessage($"Fecha Nacimiento:   {emp.FechaNacimiento:dd/MM/yyyy}");
+                    _writer.ShowMessage($"Correo Electronico: {emp.CorreoElectronico}");
+                    _writer.ShowMessage($"Direccion:          {emp.Direccion}");
+                    _writer.ShowMessage($"Estado Civil:       {emp.EstadoCivil}");
+                    _writer.ShowMessage($"Usuario de Login:   {emp.User}");
+                    _writer.ShowMessage($"Estado:             {(emp.Estado ? "ACTIVO" : "INACTIVO")}");
+                }
+                catch (TiendaException ex)
+                {
+                    _writer.ShowError(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    _writer.ShowError($"Ocurrio un error inesperado al buscar: {ex.Message}");
+                }
+
+                _writer.WaitForKey();
+                return;
+            }
 
             Rol? rolFiltro = null;
             string estadoFiltro = "Todos";

@@ -28,14 +28,21 @@ namespace TiendaCosmeticos.Commands.Administrador.ClienteCommand
                 "Seleccione el filtro a aplicar:",
                 "Listar todos los clientes (Activos e Inactivos)",
                 "Listar solo clientes activos",
-                "Listar solo clientes inactivos"
+                "Listar solo clientes inactivos",
+                "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-3): ")
+            string opcion = new Validator("Ingrese su opcion (1-4): ")
                 .NotEmpty()
                 .OnlyDigits()
-                .InputBetweenXandY(1, 3)
+                .InputBetweenXandY(1, 4)
                 .ReadAndValidate();
+
+            // Opcion 4: Salir al menu anterior
+            if (opcion == "4")
+            {
+                return;
+            }
 
             string filtro = opcion switch
             {

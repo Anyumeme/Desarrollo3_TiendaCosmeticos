@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
 using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
+using Administrador = TiendaCosmeticos.Models.Administrador;
 
 namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 {
@@ -11,11 +13,16 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
     {
         private readonly IConsoleWriter _writer;
         private readonly EmpleadoService _empleadoService;
+        private readonly AdministradorService _administradorService;
 
-        public ListarPersonalCommand(IConsoleWriter writer, EmpleadoService empleadoService)
+        public ListarPersonalCommand(
+            IConsoleWriter writer,
+            EmpleadoService empleadoService,
+            AdministradorService administradorService)
         {
             _writer = writer;
             _empleadoService = empleadoService;
+            _administradorService = administradorService;
         }
 
         public void Execute()
@@ -31,24 +38,25 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 "Listar solo personal inactivo",
                 "Listar solo Vendedores",
                 "Listar solo Bodegueros",
-                "Buscar empleado por ID o Cedula",
+                "Listar solo Administradores",
+                "Buscar personal por ID o Cedula",
                 "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-7): ")
+            string opcion = new Validator("Ingrese su opcion (1-8): ")
                 .NotEmpty()
                 .OnlyDigits()
-                .InputBetweenXandY(1, 7)
+                .InputBetweenXandY(1, 8)
                 .ReadAndValidate();
 
-            // Opcion 7: Salir al menu anterior
-            if (opcion == "7")
+            // Opcion 8: Salir al menu anterior
+            if (opcion == "8")
             {
                 return;
             }
 
             // Busqueda individual puntual por ID o Cedula
-            if (opcion == "6")
+            if (opcion == "7")
             {
                 string criterio = new Validator("\nIngrese el ID o Cedula a buscar: ")
                     .NotEmpty()
@@ -56,9 +64,17 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 
                 try
                 {
-                    Empleado emp = _empleadoService.BuscarEmpleado(criterio);
+                    Empleado emp;
+                    try
+                    {
+                        emp = _empleadoService.BuscarEmpleado(criterio);
+                    }
+                    catch (TiendaException)
+                    {
+                        emp = _administradorService.BuscarAdministrador(criterio);
+                    }
 
-                    _writer.ShowMessage("\n--- Ficha del Empleado ---");
+                    _writer.ShowMessage("\n--- Ficha del Personal ---");
                     _writer.ShowMessage($"ID:                 {emp.Id}");
                     _writer.ShowMessage($"Cargo:              {emp.Rol}");
                     _writer.ShowMessage($"Nombre:             {emp.Nombre}");
@@ -85,55 +101,66 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 return;
             }
 
-            Rol? rolFiltro = null;
-            string estadoFiltro = "Todos";
-
-            switch (opcion)
-            {
-                case "1":
-                    estadoFiltro = "Todos";
-                    break;
-                case "2":
-                    estadoFiltro = "Activos";
-                    break;
-                case "3":
-                    estadoFiltro = "Inactivos";
-                    break;
-                case "4":
-                    rolFiltro = Rol.Vendedor;
-                    break;
-                case "5":
-                    rolFiltro = Rol.Bodeguero;
-                    break;
-            }
-
-            // 2. Consulta al servicio con proteccion de excepciones
+            // Consulta de lista completa con proteccion de excepciones
             try
             {
-                List<Empleado> lista = _empleadoService.ListarEmpleados(rolFiltro, estadoFiltro);
+                List<Empleado> listaFinal = new();
 
-                if (lista.Count == 0)
+                if (opcion == "6")
+                {
+                    // Solo administradores
+                    var admins = _administradorService.ListarAdministradores("Todos");
+                    listaFinal.AddRange(admins);
+                }
+                else
+                {
+                    Rol? rolFiltro = opcion switch
+                    {
+                        "4" => Rol.Vendedor,
+                        "5" => Rol.Bodeguero,
+                        _ => null
+                    };
+
+                    string estadoFiltro = opcion switch
+                    {
+                        "2" => "Activos",
+                        "3" => "Inactivos",
+                        _ => "Todos"
+                    };
+
+                    List<Empleado> empleados = _empleadoService.ListarEmpleados(rolFiltro, estadoFiltro);
+                    listaFinal.AddRange(empleados);
+
+                    // Si se lista todo o por estado general, incluir tambien a los administradores
+                    if (rolFiltro == null)
+                    {
+                        var admins = _administradorService.ListarAdministradores(estadoFiltro);
+                        listaFinal.AddRange(admins);
+                    }
+                }
+
+                if (listaFinal.Count == 0)
                 {
                     _writer.ShowMessage("\nNo se encontraron registros de personal con el filtro seleccionado.");
                     _writer.WaitForKey();
                     return;
                 }
 
-                // 3. Renderizado de tabla limpia en consola
+                // Renderizado de tabla limpia en consola
                 _writer.ShowMessage("\n" + new string('-', 105));
-                _writer.ShowMessage(string.Format("{0,-10} | {1,-10} | {2,-25} | {3,-18} | {4,-10} | {5,-12} | {6,-8}",
+                _writer.ShowMessage(string.Format("{0,-10} | {1,-14} | {2,-23} | {3,-18} | {4,-10} | {5,-10} | {6,-8}",
                     "ID", "CARGO", "NOMBRE", "CEDULA", "CELULAR", "USUARIO", "ESTADO"));
                 _writer.ShowMessage(new string('-', 105));
 
-                foreach (var emp in lista)
+                foreach (var emp in listaFinal)
                 {
                     string estadoTexto = emp.Estado ? "Activo" : "Inactivo";
-                    string cargoTexto = emp.Rol == Rol.Vendedor ? "Vendedor" : "Bodeguero";
+                    string cargoTexto = emp.Rol.ToString();
 
-                    _writer.ShowMessage(string.Format("{0,-10} | {1,-10} | {2,-25} | {3,-18} | {4,-10} | {5,-12} | {6,-8}",
+                    _writer.ShowMessage(string.Format("{0,-10} | {1,-14} | {2,-23} | {3,-18} | {4,-10} | {5,-10} | {6,-8}",
                         emp.Id,
                         cargoTexto,
-                        emp.Nombre.Length > 25 ? emp.Nombre.Substring(0, 22) + "..." : emp.Nombre,
+                        emp.Nombre.Length > 23 ? emp.Nombre.Substring(0, 20) + "..." : emp.Nombre,
                         emp.Cedula,
                         emp.NumeroCelular,
                         emp.User,
@@ -141,7 +168,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 }
 
                 _writer.ShowMessage(new string('-', 105));
-                _writer.ShowMessage($"Total de registros encontrados: {lista.Count}");
+                _writer.ShowMessage($"Total de registros encontrados: {listaFinal.Count}");
             }
             catch (TiendaException ex)
             {

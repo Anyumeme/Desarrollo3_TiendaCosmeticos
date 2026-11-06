@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TiendaCosmeticos.Models;
+using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Repositories
 {
@@ -30,7 +31,7 @@ namespace TiendaCosmeticos.Repositories
         {
             if (string.IsNullOrWhiteSpace(cedulaCliente)) return new List<Venta>();
             return _ventas
-                .Where(v => string.Equals(v?.Cliente?.Cedula, cedulaCliente.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(v => v?.Cliente != null && BusquedaHelper.CoincideCedula(v.Cliente.Cedula, cedulaCliente))
                 .ToList();
         }
 
@@ -38,7 +39,7 @@ namespace TiendaCosmeticos.Repositories
         {
             if (string.IsNullOrWhiteSpace(cedulaVendedor)) return new List<Venta>();
             return _ventas
-                .Where(v => string.Equals(v?.Vendedor?.Cedula, cedulaVendedor.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(v => v?.Vendedor != null && BusquedaHelper.CoincideCedula(v.Vendedor.Cedula, cedulaVendedor))
                 .ToList();
         }
 

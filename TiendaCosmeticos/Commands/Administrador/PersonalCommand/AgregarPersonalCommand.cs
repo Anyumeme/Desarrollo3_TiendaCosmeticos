@@ -4,6 +4,7 @@ using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
 using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
+using Administrador = TiendaCosmeticos.Models.Administrador;
 
 namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 {
@@ -11,11 +12,16 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
     {
         private readonly IConsoleWriter _writer;
         private readonly EmpleadoService _empleadoService;
+        private readonly AdministradorService _administradorService;
 
-        public AgregarPersonalCommand(IConsoleWriter writer, EmpleadoService empleadoService)
+        public AgregarPersonalCommand(
+            IConsoleWriter writer,
+            EmpleadoService empleadoService,
+            AdministradorService administradorService)
         {
             _writer = writer;
             _empleadoService = empleadoService;
+            _administradorService = administradorService;
         }
 
         public void Execute()
@@ -27,17 +33,29 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             _writer.DisplayMenu(
                 "Seleccione el cargo a asignar:",
                 "Vendedor (Modulo de Ventas)",
-                "Encargado de Bodega (Modulo de Inventario)"
+                "Encargado de Bodega (Modulo de Inventario)",
+                "Administrador (Gestion y Control General)"
             );
 
-            string rolOpcion = new Validator("Ingrese su opcion (1-2): ")
+            string rolOpcion = new Validator("Ingrese su opcion (1-3): ")
                 .NotEmpty()
                 .OnlyDigits()
-                .InputBetweenXandY(1, 2)
+                .InputBetweenXandY(1, 3)
                 .ReadAndValidate();
 
-            Rol rol = rolOpcion == "1" ? Rol.Vendedor : Rol.Bodeguero;
-            string rolTexto = rol == Rol.Vendedor ? "Vendedor" : "Bodeguero";
+            Rol rol = rolOpcion switch
+            {
+                "1" => Rol.Vendedor,
+                "2" => Rol.Bodeguero,
+                _ => Rol.Administrador
+            };
+
+            string rolTexto = rol switch
+            {
+                Rol.Vendedor => "Vendedor",
+                Rol.Bodeguero => "Bodeguero",
+                _ => "Administrador"
+            };
 
             _writer.ShowMessage($"\n--- Datos del {rolTexto} ---");
 
@@ -100,24 +118,24 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             string user = new Validator("Nombre de usuario para inicio de sesion: ")
                 .NotEmpty()
                 .SinEspacios()
-                .MinLength(3)
+                .MinLength(4)
                 .MaxLength(20)
                 .ReadAndValidate();
 
-            string password = new Validator("Contrasenia (min. 8 caracteres con mayuscula, minuscula, numero y simbolo): ")
+            string password = new Validator("Contrasenia (min 8 caracteres, mayuscula, minuscula, numero y simbolo): ")
                 .NotEmpty()
                 .PasswordSegura()
                 .ReadPassword();
 
-            // 10. Salario mensual para su contrato
-            string salarioTexto = new Validator("Salario mensual en C$: ")
+            // 10. Salario mensual acordado para contrato
+            string salarioTexto = new Validator("Salario mensual acordado en contrato (C$): ")
                 .NotEmpty()
                 .DecimalPositivo()
                 .ReadAndValidate();
             decimal salario = decimal.Parse(salarioTexto.Trim().Replace(',', '.'), CultureInfo.InvariantCulture);
 
             // 11. Confirmacion antes de guardar
-            string confirmacion = new Validator("\n¿Confirma el registro del nuevo trabajador? (S/N): ")
+            string confirmacion = new Validator($"\n¿Confirma el registro del nuevo {rolTexto}? (S/N): ")
                 .NotEmpty()
                 .ConfirmacionSN()
                 .ReadAndValidate();
@@ -129,26 +147,61 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 return;
             }
 
-            // 12. Llamado al servicio blindado con try/catch para evitar caidas
+            // 12. Guardado blindado
             try
             {
-                Empleado nuevo = _empleadoService.RegistrarEmpleado(
-                    rol,
-                    cedula,
-                    nombre,
-                    celular,
-                    fechaNacimiento,
-                    genero,
-                    correo,
-                    direccion,
-                    estadoCivil,
-                    user,
-                    password,
-                    salario
-                );
+                if (rol == Rol.Administrador)
+                {
+                    int correlativo = Startup.GetAdministradorRepository().GetAll().Count + Startup.GetEmpleadoRepository().GetAll().Count + 1;
+                    string nuevoId = $"EMP-{correlativo:D4}";
+                    while (Startup.GetAdministradorRepository().GetById(nuevoId) != null || Startup.GetEmpleadoRepository().GetById(nuevoId) != null)
+                    {
+                        correlativo++;
+                        nuevoId = $"EMP-{correlativo:D4}";
+                    }
 
-                _writer.ShowMessage("\nPersonal registrado exitosamente.");
-                _writer.ShowMessage($"Codigo asignado: {nuevo.Id} | Cargo: {rolTexto} | Usuario: {nuevo.User}");
+                    TiendaCosmeticos.Models.Administrador nuevoAdmin = new TiendaCosmeticos.Models.Administrador(
+                        nuevoId,
+                        cedula.Trim(),
+                        nombre.Trim(),
+                        celular,
+                        fechaNacimiento,
+                        genero,
+                        correo.Trim(),
+                        direccion.Trim(),
+                        estadoCivil.Trim(),
+                        user.Trim(),
+                        password
+                    );
+
+                    _administradorService.CrearAdministrador(nuevoAdmin);
+
+                    // Registrar tambien su contrato administrativo
+                    Startup.GetContratoRepository().Add(new Contrato(nuevoAdmin, salario, "Administrador General", DateTime.Today, true));
+
+                    _writer.ShowMessage("\nAdministrador registrado exitosamente.");
+                    _writer.ShowMessage($"Codigo asignado: {nuevoAdmin.Id} | Cargo: Administrador | Usuario: {nuevoAdmin.User}");
+                }
+                else
+                {
+                    Empleado nuevo = _empleadoService.RegistrarEmpleado(
+                        rol,
+                        cedula,
+                        nombre,
+                        celular,
+                        fechaNacimiento,
+                        genero,
+                        correo,
+                        direccion,
+                        estadoCivil,
+                        user,
+                        password,
+                        salario
+                    );
+
+                    _writer.ShowMessage("\nPersonal registrado exitosamente.");
+                    _writer.ShowMessage($"Codigo asignado: {nuevo.Id} | Cargo: {rolTexto} | Usuario: {nuevo.User}");
+                }
             }
             catch (TiendaException ex)
             {

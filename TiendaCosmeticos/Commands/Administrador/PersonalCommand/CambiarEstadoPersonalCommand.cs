@@ -10,16 +10,22 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
     {
         private readonly IConsoleWriter _writer;
         private readonly EmpleadoService _empleadoService;
+        private readonly AdministradorService _administradorService;
         private readonly ContratoService? _contratoService;
+        private readonly TiendaCosmeticos.Models.Administrador? _adminSolicitante;
 
         public CambiarEstadoPersonalCommand(
             IConsoleWriter writer,
             EmpleadoService empleadoService,
-            ContratoService? contratoService = null)
+            AdministradorService administradorService,
+            ContratoService? contratoService = null,
+            TiendaCosmeticos.Models.Administrador? adminSolicitante = null)
         {
             _writer = writer;
             _empleadoService = empleadoService;
+            _administradorService = administradorService;
             _contratoService = contratoService;
+            _adminSolicitante = adminSolicitante;
         }
 
         public void Execute()
@@ -28,27 +34,37 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             _writer.ShowHeader("CAMBIO DE ESTADO DE PERSONAL (ACTIVAR / DESACTIVAR)");
 
             // 1. Solicitar el ID o Cedula del empleado a conmutar
-            string criterio = new Validator("Ingrese el ID o Cedula del empleado: ")
+            string criterio = new Validator("Ingrese el ID o Cedula del personal: ")
                 .NotEmpty()
                 .ReadAndValidate();
 
             Empleado empleado;
+            bool esAdmin = false;
+
             try
             {
                 empleado = _empleadoService.BuscarEmpleado(criterio);
             }
-            catch (TiendaException ex)
+            catch (TiendaException)
             {
-                _writer.ShowError(ex.Message);
-                _writer.WaitForKey();
-                return;
+                // Si no es vendedor ni bodeguero, buscar si es administrador
+                try
+                {
+                    empleado = _administradorService.BuscarAdministrador(criterio);
+                    esAdmin = true;
+                }
+                catch (TiendaException exAdmin)
+                {
+                    _writer.ShowError(exAdmin.Message);
+                    _writer.WaitForKey();
+                    return;
+                }
             }
 
             // 2. Mostrar la ficha del empleado
             string estadoActualTexto = empleado.Estado ? "ACTIVO" : "INACTIVO";
-            string accionDeseada = empleado.Estado ? "DESACTIVAR" : "REACTIVAR";
 
-            _writer.ShowMessage("\n--- Informacion del Empleado ---");
+            _writer.ShowMessage("\n--- Informacion del Personal ---");
             _writer.ShowMessage($"ID:         {empleado.Id}");
             _writer.ShowMessage($"Cargo:      {empleado.Rol}");
             _writer.ShowMessage($"Nombre:     {empleado.Nombre}");
@@ -57,8 +73,8 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
 
             // 3. Confirmacion de la accion segun el estado actual
             string pregunta = empleado.Estado
-                ? $"\nEl empleado se encuentra ACTIVO. ¿Esta seguro de que desea DESACTIVARLO? (S/N): "
-                : $"\nEl empleado se encuentra INACTIVO. ¿Esta seguro de que desea REACTIVARLO? (S/N): ";
+                ? $"\nEl personal se encuentra ACTIVO. ¿Esta seguro de que desea DESACTIVARLO? (S/N): "
+                : $"\nEl personal se encuentra INACTIVO. ¿Esta seguro de que desea REACTIVARLO? (S/N): ";
 
             string confirmacion = new Validator(pregunta)
                 .NotEmpty()
@@ -72,50 +88,65 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 return;
             }
 
-            // 4. Ejecucion segura con manejo de dependencias de contrato
+            // 4. Ejecucion segura
             try
             {
-                if (empleado.Estado)
+                if (esAdmin)
                 {
-                    // Si se va a desactivar y tenemos el servicio de contratos, ofrecer cancelar el contrato
-                    if (_contratoService != null)
+                    if (empleado.Estado)
                     {
-                        try
-                        {
-                            var contrato = _contratoService.BuscarContratoPorEmpleado(empleado.Id);
-                            if (contrato != null && contrato.Activo)
-                            {
-                                string cancelarContratoSN = new Validator("El empleado tiene un contrato laboral activo. ¿Desea cancelar el contrato para proceder con la baja? (S/N): ")
-                                    .NotEmpty()
-                                    .ConfirmacionSN()
-                                    .ReadAndValidate();
-
-                                if (cancelarContratoSN.Trim().ToUpper() == "S")
-                                {
-                                    _contratoService.CancelarContrato(empleado.Id);
-                                    _writer.ShowMessage("Contrato laboral cancelado exitosamente.");
-                                }
-                                else
-                                {
-                                    _writer.ShowMessage("\nNo se puede desactivar al empleado sin cancelar previamente su contrato laboral.");
-                                    _writer.WaitForKey();
-                                    return;
-                                }
-                            }
-                        }
-                        catch (RegistroNoEncontradoException)
-                        {
-                            // Si no tiene contrato asociado, prosigue normalmente
-                        }
+                        _administradorService.DesactivarAdministrador(empleado.Id, _adminSolicitante);
+                        _writer.ShowMessage($"\nEl Administrador '{empleado.Nombre}' ({empleado.Id}) ha sido DESACTIVADO correctamente.");
                     }
-
-                    _empleadoService.DesactivarEmpleado(empleado.Id);
-                    _writer.ShowMessage($"\nEmpleado '{empleado.Id}' desactivado exitosamente.");
+                    else
+                    {
+                        _administradorService.ActivarAdministrador(empleado.Id, _adminSolicitante);
+                        _writer.ShowMessage($"\nEl Administrador '{empleado.Nombre}' ({empleado.Id}) ha sido REACTIVADO exitosamente.");
+                    }
                 }
                 else
                 {
-                    _empleadoService.ActivarEmpleado(empleado.Id);
-                    _writer.ShowMessage($"\nEmpleado '{empleado.Id}' reactivado exitosamente.");
+                    if (empleado.Estado)
+                    {
+                        // Si se va a desactivar, cancelar contrato laboral si existe
+                        if (_contratoService != null)
+                        {
+                            try
+                            {
+                                var contrato = _contratoService.BuscarContratoPorEmpleado(empleado.Id);
+                                if (contrato != null && contrato.Activo)
+                                {
+                                    string cancelarSN = new Validator("El empleado tiene un contrato laboral activo. ¿Desea cancelar el contrato para proceder con la baja? (S/N): ")
+                                        .NotEmpty()
+                                        .ConfirmacionSN()
+                                        .ReadAndValidate();
+
+                                    if (cancelarSN.Trim().ToUpper() == "S")
+                                    {
+                                        _contratoService.CancelarContrato(empleado.Id);
+                                        _writer.ShowMessage("Contrato laboral cancelado exitosamente.");
+                                    }
+                                    else
+                                    {
+                                        _writer.ShowMessage("\nNo se puede desactivar al empleado sin cancelar previamente su contrato laboral.");
+                                        _writer.WaitForKey();
+                                        return;
+                                    }
+                                }
+                            }
+                            catch (RegistroNoEncontradoException)
+                            {
+                            }
+                        }
+
+                        _empleadoService.DesactivarEmpleado(empleado.Id);
+                        _writer.ShowMessage($"\nEl empleado '{empleado.Nombre}' ({empleado.Id}) ha sido DESACTIVADO correctamente.");
+                    }
+                    else
+                    {
+                        _empleadoService.ActivarEmpleado(empleado.Id);
+                        _writer.ShowMessage($"\nEl empleado '{empleado.Nombre}' ({empleado.Id}) ha sido REACTIVADO exitosamente.");
+                    }
                 }
             }
             catch (TiendaException ex)
@@ -124,7 +155,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             }
             catch (Exception ex)
             {
-                _writer.ShowError($"Ocurrio un error inesperado al cambiar el estado: {ex.Message}");
+                _writer.ShowError($"Ocurrio un error inesperado al modificar el estado: {ex.Message}");
             }
 
             _writer.WaitForKey();

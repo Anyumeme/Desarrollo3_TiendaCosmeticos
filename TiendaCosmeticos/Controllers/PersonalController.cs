@@ -11,26 +11,30 @@ namespace TiendaCosmeticos.Controllers
     {
         private readonly EmpleadoService _empleadoService;
         private readonly ContratoService _contratoService;
+        private readonly AdministradorService _administradorService;
         private readonly IConsoleWriter _writer;
         private readonly Dictionary<int, ICommand> _commands;
 
         public PersonalController(
             EmpleadoService empleadoService,
             ContratoService contratoService,
-            IConsoleWriter writer)
+            AdministradorService administradorService,
+            IConsoleWriter writer,
+            Administrador? adminSolicitante = null)
         {
             _empleadoService = empleadoService;
             _contratoService = contratoService;
+            _administradorService = administradorService;
             _writer = writer;
 
             _commands = new Dictionary<int, ICommand>
             {
-                { 1, new AgregarPersonalCommand(_writer, _empleadoService) },
-                { 2, new EditarPersonalCommand(_writer, _empleadoService) },
+                { 1, new AgregarPersonalCommand(_writer, _empleadoService, _administradorService) },
+                { 2, new EditarPersonalCommand(_writer, _empleadoService, _administradorService) },
                 { 3, new ActualizarSalarioCommand(_writer, _contratoService) },
                 { 4, new ConsultarPlanillaCommand(_writer, _contratoService) },
-                { 5, new CambiarEstadoPersonalCommand(_writer, _empleadoService, _contratoService) },
-                { 6, new ListarPersonalCommand(_writer, _empleadoService) }
+                { 5, new CambiarEstadoPersonalCommand(_writer, _empleadoService, _administradorService, _contratoService, adminSolicitante) },
+                { 6, new ListarPersonalCommand(_writer, _empleadoService, _administradorService) }
             };
         }
 
@@ -44,12 +48,12 @@ namespace TiendaCosmeticos.Controllers
                 _writer.DisplayInitialMessage("GESTION DEL PERSONAL");
                 _writer.DisplayMenu(
                     "Seleccione una opcion:",
-                    "Agregar empleado (Vendedor / Bodeguero)",
-                    "Editar datos de empleado",
+                    "Agregar personal (Vendedor / Bodeguero / Administrador)",
+                    "Editar datos de personal",
                     "Actualizar salario de contrato",
                     "Consultar planilla de pagos",
-                    "Cambiar estado de empleado (Activar / Desactivar)",
-                    "Buscar / Listar empleados",
+                    "Cambiar estado de personal (Activar / Desactivar)",
+                    "Buscar / Listar personal",
                     "Volver al menu principal"
                 );
 
@@ -83,4 +87,3 @@ namespace TiendaCosmeticos.Controllers
         }
     }
 }
-

@@ -10,11 +10,16 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
     {
         private readonly IConsoleWriter _writer;
         private readonly EmpleadoService _empleadoService;
+        private readonly AdministradorService _administradorService;
 
-        public EditarPersonalCommand(IConsoleWriter writer, EmpleadoService empleadoService)
+        public EditarPersonalCommand(
+            IConsoleWriter writer,
+            EmpleadoService empleadoService,
+            AdministradorService administradorService)
         {
             _writer = writer;
             _empleadoService = empleadoService;
+            _administradorService = administradorService;
         }
 
         public void Execute()
@@ -23,11 +28,13 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             _writer.ShowHeader("EDICION DE DATOS DE PERSONAL");
 
             // 1. Solicitar el ID o Cedula del empleado a modificar
-            string criterio = new Validator("Ingrese el ID o Cedula del empleado a editar: ")
+            string criterio = new Validator("Ingrese el ID o Cedula del personal a editar: ")
                 .NotEmpty()
                 .ReadAndValidate();
 
             Empleado empleado;
+            bool esAdmin = false;
+
             try
             {
                 empleado = _empleadoService.BuscarEmpleado(criterio);
@@ -39,11 +46,26 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                     return;
                 }
             }
-            catch (TiendaException ex)
+            catch (TiendaException)
             {
-                _writer.ShowError(ex.Message);
-                _writer.WaitForKey();
-                return;
+                try
+                {
+                    empleado = _administradorService.BuscarAdministrador(criterio);
+                    esAdmin = true;
+
+                    if (!empleado.Estado)
+                    {
+                        _writer.ShowError($"El administrador '{empleado.Id}' se encuentra inactivo. Debe reactivarlo antes de editar sus datos.");
+                        _writer.WaitForKey();
+                        return;
+                    }
+                }
+                catch (TiendaException exAdmin)
+                {
+                    _writer.ShowError(exAdmin.Message);
+                    _writer.WaitForKey();
+                    return;
+                }
             }
 
             // 2. Mostrar la ficha actual del trabajador
@@ -124,7 +146,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
             }
 
             // 5. Confirmacion antes de aplicar los cambios
-            string confirmacion = new Validator("\n¿Esta seguro de guardar los cambios en este empleado? (S/N): ")
+            string confirmacion = new Validator("\n¿Esta seguro de guardar los cambios en este personal? (S/N): ")
                 .NotEmpty()
                 .ConfirmacionSN()
                 .ReadAndValidate();
@@ -136,22 +158,39 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 return;
             }
 
-            // 6. Aplicar actualizacion con captura de excepciones para evitar caidas
+            // 6. Aplicar actualizacion con captura de excepciones
             try
             {
-                _empleadoService.ActualizarEmpleado(
-                    empleado.Id,
-                    nuevoNombre,
-                    nuevoCelular,
-                    nuevoGenero,
-                    nuevaFechaNacimiento,
-                    nuevoCorreo,
-                    nuevaDireccion,
-                    nuevoEstadoCivil,
-                    nuevaCedula
-                );
+                if (esAdmin)
+                {
+                    _administradorService.ActualizarAdministrador(
+                        empleado.Id,
+                        nuevoNombre,
+                        nuevoCelular,
+                        nuevoGenero,
+                        nuevaFechaNacimiento,
+                        nuevoCorreo,
+                        nuevaDireccion,
+                        nuevoEstadoCivil,
+                        nuevaCedula
+                    );
+                }
+                else
+                {
+                    _empleadoService.ActualizarEmpleado(
+                        empleado.Id,
+                        nuevoNombre,
+                        nuevoCelular,
+                        nuevoGenero,
+                        nuevaFechaNacimiento,
+                        nuevoCorreo,
+                        nuevaDireccion,
+                        nuevoEstadoCivil,
+                        nuevaCedula
+                    );
+                }
 
-                _writer.ShowMessage($"\nDatos del empleado '{empleado.Id}' actualizados correctamente.");
+                _writer.ShowMessage($"\nDatos de '{empleado.Nombre}' ({empleado.Id}) actualizados correctamente.");
             }
             catch (TiendaException ex)
             {

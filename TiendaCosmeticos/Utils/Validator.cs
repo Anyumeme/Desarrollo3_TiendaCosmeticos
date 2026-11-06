@@ -24,7 +24,7 @@ namespace TiendaCosmeticos.Util
 
         public Validator OnlyDigits(string errorMessage = "Error: Solo se permiten digitos numericos")
         {
-            _rules.Add(input => (input.Trim().All(char.IsDigit), errorMessage));
+            _rules.Add(input => (!string.IsNullOrWhiteSpace(input) && input.Trim().All(char.IsDigit), errorMessage));
             return this;
         }
 

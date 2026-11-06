@@ -78,15 +78,19 @@ namespace TiendaCosmeticos.Services
             _administradorRepository.Add(administrador);
         }
 
-        public void DesactivarAdministrador(string id, Administrador? adminActual = null)
+        public void DesactivarAdministrador(string id, Administrador? adminSolicitante = null)
         {
+            // Regla de jerarquia: Solo Victor tiene permisos para desactivar a otros administradores
+            if (adminSolicitante != null && !string.Equals(adminSolicitante.User, "Victor", StringComparison.OrdinalIgnoreCase))
+                throw new TiendaException("Acceso denegado: Solo el Administrador Principal 'Victor' tiene permisos para dar de baja cuentas de Administrador.");
+
             Administrador admin = GetById(id);
 
             // Validar que no se desactive a Victor ni la propia cuenta en uso
             if (string.Equals(admin.User, "Victor", StringComparison.OrdinalIgnoreCase))
                 throw new TiendaException("El administrador principal 'Victor' no puede ser desactivado.");
 
-            if (adminActual != null && string.Equals(admin.Id, adminActual.Id, StringComparison.OrdinalIgnoreCase))
+            if (adminSolicitante != null && string.Equals(admin.Id, adminSolicitante.Id, StringComparison.OrdinalIgnoreCase))
                 throw new TiendaException("No puede desactivar su propia cuenta mientras la esta utilizando.");
 
             if (!admin.Estado)
@@ -95,8 +99,12 @@ namespace TiendaCosmeticos.Services
             admin.Desactivar();
         }
 
-        public void ActivarAdministrador(string id)
+        public void ActivarAdministrador(string id, Administrador? adminSolicitante = null)
         {
+            // Regla de jerarquia: Solo Victor tiene permisos para reactivar a otros administradores
+            if (adminSolicitante != null && !string.Equals(adminSolicitante.User, "Victor", StringComparison.OrdinalIgnoreCase))
+                throw new TiendaException("Acceso denegado: Solo el Administrador Principal 'Victor' tiene permisos para reactivar cuentas de Administrador.");
+
             Administrador admin = GetById(id);
             if (admin.Estado)
                 throw new EstadoYaAsignadoException("Administrador", true);

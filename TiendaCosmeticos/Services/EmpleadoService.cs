@@ -79,14 +79,13 @@ namespace TiendaCosmeticos.Services
             ValidarUsuarioUnico(user);
             ValidarCelularUnico(celular);
 
-            // Generar identificador correlativo separado segun el rol (VEN-0001 o BOD-0001)
-            string prefijo = rol == Rol.Vendedor ? "VEN" : "BOD";
-            int correlativo = _empleadoRepository.GetAll().Count(e => e.Rol == rol) + 1;
-            string nuevoId = $"{prefijo}-{correlativo:D4}";
-            while (_empleadoRepository.GetById(nuevoId) != null)
+            // Generar identificador correlativo unificado para todo el personal (EMP-0001, EMP-0002, etc.)
+            int correlativo = _empleadoRepository.GetAll().Count + _administradorRepository.GetAll().Count + 1;
+            string nuevoId = $"EMP-{correlativo:D4}";
+            while (_empleadoRepository.GetById(nuevoId) != null || _administradorRepository.GetById(nuevoId) != null)
             {
                 correlativo++;
-                nuevoId = $"{prefijo}-{correlativo:D4}";
+                nuevoId = $"EMP-{correlativo:D4}";
             }
 
             // Crear y guardar el empleado

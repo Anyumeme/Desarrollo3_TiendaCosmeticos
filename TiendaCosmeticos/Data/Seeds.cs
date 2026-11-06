@@ -18,7 +18,7 @@ namespace TiendaCosmeticos.Data
             if (adminRepo != null && adminRepo.GetAll().Count == 0)
             {
                 Administrador victor = new Administrador(
-                    id: "ADM-01",
+                    id: "EMP-0001",
                     cedula: "001-010180-0000A",
                     nombre: "Victor",
                     numeroCelular: 88889999,
@@ -37,7 +37,7 @@ namespace TiendaCosmeticos.Data
             if (empleadoRepo != null && empleadoRepo.GetAll().Count == 0)
             {
                 Empleado vendedor = new Empleado(
-                    id: "VEN-01",
+                    id: "EMP-0002",
                     cedula: "001-110997-0041S",
                     nombre: "Andrew Torrez",
                     numeroCelular: 88061285,
@@ -52,7 +52,7 @@ namespace TiendaCosmeticos.Data
                 );
 
                 Empleado bodeguero = new Empleado(
-                    id: "BOD-01",
+                    id: "EMP-0003",
                     cedula: "001-200592-0002B",
                     nombre: "Humberto Oviedo",
                     numeroCelular: 87772222,
@@ -81,7 +81,7 @@ namespace TiendaCosmeticos.Data
             if (clienteRepo != null && clienteRepo.GetAll().Count == 0)
             {
                 Cliente cliente1 = new Cliente(
-                    id: "CLI-01",
+                    id: "CLI-0001",
                     cedula: "001-150500-0003C",
                     nombre: "Maria Gomez",
                     numeroCelular: 88884444,
@@ -90,7 +90,7 @@ namespace TiendaCosmeticos.Data
                 );
 
                 Cliente cliente2 = new Cliente(
-                    id: "CLI-02",
+                    id: "CLI-0002",
                     cedula: "001-080398-0004D",
                     nombre: "Sofia Ramirez",
                     numeroCelular: 87775555,
@@ -106,27 +106,27 @@ namespace TiendaCosmeticos.Data
             if (productoRepo != null && productoRepo.GetAll().Count == 0)
             {
                 productoRepo.Add(new Producto(
-                    "PROD-01", "Labial Mate Superstay", "Maybelline", CategoriaProductos.Maquillaje,
+                    "PROD-0001", "Labial Mate Superstay", "Maybelline", CategoriaProductos.Maquillaje,
                     350.00m, 50, DateTime.Today.AddMonths(18)
                 ));
 
                 productoRepo.Add(new Producto(
-                    "PROD-02", "Base Fit Me Matte", "Maybelline", CategoriaProductos.Maquillaje,
+                    "PROD-0002", "Base Fit Me Matte", "Maybelline", CategoriaProductos.Maquillaje,
                     480.00m, 35, DateTime.Today.AddMonths(24)
                 ));
 
                 productoRepo.Add(new Producto(
-                    "PROD-03", "Mascara Lash Sensational", "Maybelline", CategoriaProductos.Maquillaje,
+                    "PROD-0003", "Mascara Lash Sensational", "Maybelline", CategoriaProductos.Maquillaje,
                     390.00m, 40, DateTime.Today.AddMonths(12)
                 ));
 
                 productoRepo.Add(new Producto(
-                    "PROD-04", "Serum Acido Hialuronico", "L'Oreal", CategoriaProductos.CuidadoPiel,
+                    "PROD-0004", "Serum Acido Hialuronico", "L'Oreal", CategoriaProductos.CuidadoPiel,
                     650.00m, 20, DateTime.Today.AddMonths(15)
                 ));
 
                 productoRepo.Add(new Producto(
-                    "PROD-05", "Polvo Compacto Colorstay", "Revlon", CategoriaProductos.Maquillaje,
+                    "PROD-0005", "Polvo Compacto Colorstay", "Revlon", CategoriaProductos.Maquillaje,
                     420.00m, 25, DateTime.Today.AddMonths(20)
                 ));
             }

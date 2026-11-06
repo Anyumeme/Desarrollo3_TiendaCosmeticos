@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TiendaCosmeticos.Models;
+using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Repositories
 {
@@ -23,7 +24,7 @@ namespace TiendaCosmeticos.Repositories
         public Producto? GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
-            return _productos.FirstOrDefault(p => string.Equals(p?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _productos.FirstOrDefault(p => BusquedaHelper.CoincideId(p?.Id, id));
         }
 
         public List<Producto> GetByMarca(string marca)

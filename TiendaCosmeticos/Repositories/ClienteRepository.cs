@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TiendaCosmeticos.Models;
+using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Repositories
 {
@@ -23,13 +24,13 @@ namespace TiendaCosmeticos.Repositories
         public Cliente? GetById(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return null;
-            return _clientes.FirstOrDefault(c => string.Equals(c?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _clientes.FirstOrDefault(c => BusquedaHelper.CoincideId(c?.Id, id));
         }
 
         public Cliente? GetByCedula(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula)) return null;
-            return _clientes.FirstOrDefault(c => string.Equals(c?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
+            return _clientes.FirstOrDefault(c => BusquedaHelper.CoincideCedula(c?.Cedula, cedula));
         }
 
         public Cliente? GetByCelular(int celular)

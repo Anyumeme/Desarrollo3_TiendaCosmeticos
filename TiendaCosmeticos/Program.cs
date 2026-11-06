@@ -1,4 +1,6 @@
+using System;
 using TiendaCosmeticos.Controllers;
+using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
 using TiendaCosmeticos.Util;
 
@@ -15,20 +17,36 @@ namespace TiendaCosmeticos
 
             while (continuar)
             {
-                IAutentication? usuario = authController.IniciarSesion();
+                try
+                {
+                    IAutentication? usuario = authController.IniciarSesion();
 
-                if (usuario == null)
-                {
-                    continuar = false;
+                    if (usuario == null)
+                    {
+                        continuar = false;
+                    }
+                    else
+                    {
+                        IController controller = ControllerFactory.CrearControlador(usuario);
+                        controller.DisplayMenu();
+                    }
                 }
-                else
+                catch (TiendaException ex)
                 {
-                    IController controller = ControllerFactory.CrearControlador(usuario);
-                    controller.DisplayMenu();
+                    consoleWriter.ShowError($"Aviso del sistema: {ex.Message}");
+                    consoleWriter.WaitForKey();
+                }
+                catch (Exception ex)
+                {
+                    consoleWriter.ShowError($"Error inesperado: {ex.Message}");
+                    consoleWriter.WaitForKey();
                 }
             }
 
-            consoleWriter.ShowMessage("\nSesion finalizada. Gracias por utilizar el sistema.");
+            consoleWriter.Clear();
+            consoleWriter.DisplayInitialMessage("SESION FINALIZADA");
+            consoleWriter.ShowMessage("\nGracias por utilizar el Sistema de Gestion de Tienda de Cosmeticos.");
+            consoleWriter.ShowMessage("Hasta pronto.\n");
         }
     }
 }

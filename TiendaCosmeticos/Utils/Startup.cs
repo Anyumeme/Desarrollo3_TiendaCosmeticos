@@ -120,10 +120,22 @@ namespace TiendaCosmeticos.Util
             return new ContratoService(_contratoRepository!, _empleadoRepository!);
         }
 
-        public static PersonalController InitPersonalController()
+        public static AdministradorService InitAdministradorService()
+        {
+            AsegurarRepositorios();
+            return new AdministradorService(_adminRepository!, _empleadoRepository!, _clienteRepository!);
+        }
+
+        public static PersonalController InitPersonalController(Administrador? adminActual = null)
         {
             IConsoleWriter writer = InitConsoleWriter();
-            return new PersonalController(InitEmpleadoService(), InitContratoService(), writer);
+            return new PersonalController(
+                InitEmpleadoService(),
+                InitContratoService(),
+                InitAdministradorService(),
+                writer,
+                adminActual
+            );
         }
 
         public static ClienteController InitClienteController()
@@ -157,7 +169,7 @@ namespace TiendaCosmeticos.Util
             IConsoleWriter writer = InitConsoleWriter();
             Administrador adminActual = admin ?? _adminRepository!.GetAll()[0];
 
-            PersonalController personalController = InitPersonalController();
+            PersonalController personalController = InitPersonalController(adminActual);
             ClienteController clienteController = InitClienteController();
             ProductoController productoController = InitProductoController();
             VentaController ventaController = InitVentaController(adminActual);

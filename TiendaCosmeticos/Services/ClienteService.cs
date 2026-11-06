@@ -32,6 +32,21 @@ namespace TiendaCosmeticos.Services
                 throw new CedulaDuplicadaException(limpia);
         }
 
+        private void ValidarCelularUnico(int celular)
+        {
+            if (_administradorRepository.GetByCelular(celular) != null ||
+                _empleadoRepository.GetByCelular(celular) != null ||
+                _clienteRepository.GetByCelular(celular) != null)
+                throw new CelularDuplicadoException(celular);
+        }
+
+        public bool ExisteCelular(int celular)
+        {
+            return _administradorRepository.GetByCelular(celular) != null ||
+                   _empleadoRepository.GetByCelular(celular) != null ||
+                   _clienteRepository.GetByCelular(celular) != null;
+        }
+
         private void ValidarEdadMinima(DateTime fechaNacimiento, int edadMinima)
         {
             DateTime hoy = DateTime.Today;
@@ -48,6 +63,7 @@ namespace TiendaCosmeticos.Services
         {
             ValidarEdadMinima(fechaNacimiento, 16);
             ValidarCedulaUnica(cedula);
+            ValidarCelularUnico(celular);
 
             // Generar identificador correlativo con formato CLI-0001
             int correlativo = _clienteRepository.GetAll().Count + 1;
@@ -104,6 +120,11 @@ namespace TiendaCosmeticos.Services
                 !string.Equals(nuevaCedula.Trim(), cliente.Cedula, StringComparison.OrdinalIgnoreCase))
             {
                 ValidarCedulaUnica(nuevaCedula);
+            }
+
+            if (nuevoCelular > 0 && nuevoCelular != cliente.NumeroCelular)
+            {
+                ValidarCelularUnico(nuevoCelular);
             }
 
             cliente.ActualizarCliente(nuevoNombre, nuevoCelular, nuevoGenero, nuevaFechaNacimiento, nuevaCedula);

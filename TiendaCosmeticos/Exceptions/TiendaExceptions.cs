@@ -64,6 +64,13 @@ namespace TiendaCosmeticos.Exceptions
             : base($"La cedula '{cedula}' ya pertenece a otro registro en el sistema.") { }
     }
 
+    // Validacion para que no se repitan numeros celulares
+    public class CelularDuplicadoException : TiendaException
+    {
+        public CelularDuplicadoException(int celular)
+            : base($"El numero de celular '{celular}' ya pertenece a otro registro en el sistema.") { }
+    }
+
     // Para que no existan dos usuarios con el mismo nombre de acceso
     public class UsuarioDuplicadoException : TiendaException
     {

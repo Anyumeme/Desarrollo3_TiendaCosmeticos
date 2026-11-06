@@ -139,6 +139,24 @@ namespace TiendaCosmeticos.Services
             return _productoRepository.GetActivos();
         }
 
+        // CONSULTAR SOLAMENTE PRODUCTOS INACTIVOS
+        public List<Producto> ObtenerSoloInactivos()
+        {
+            return _productoRepository.GetInactivos();
+        }
+
+        // CONSULTAR PRODUCTOS CADUCADOS O VENCIDOS
+        public List<Producto> ObtenerVencidos()
+        {
+            return _productoRepository.GetAll().Where(p => p.EstaVencido()).ToList();
+        }
+
+        // CONSULTAR PRODUCTOS CON STOCK BAJO O AGOTADO (<= 5)
+        public List<Producto> ObtenerStockBajo(int limite = 5)
+        {
+            return _productoRepository.GetAll().Where(p => p.Stock <= limite).ToList();
+        }
+
         // VALIDACIONES CENTRALIZADAS DEL SERVICIO
         private static void ValidarDatosProducto(
             string nombre,
@@ -154,10 +172,10 @@ namespace TiendaCosmeticos.Services
                     "El nombre del producto es obligatorio.");
             }
 
-            if (nombre.Trim().Length > 50)
+            if (nombre.Trim().Length < 3 || nombre.Trim().Length > 50)
             {
                 throw new TiendaException(
-                    "El nombre del producto no puede superar los 50 caracteres.");
+                    "El nombre del producto debe contener entre 3 y 50 caracteres.");
             }
 
             if (string.IsNullOrWhiteSpace(marca))
@@ -166,10 +184,10 @@ namespace TiendaCosmeticos.Services
                     "La marca del producto es obligatoria.");
             }
 
-            if (marca.Trim().Length > 40)
+            if (marca.Trim().Length < 2 || marca.Trim().Length > 40)
             {
                 throw new TiendaException(
-                    "La marca no puede superar los 40 caracteres.");
+                    "La marca del producto debe contener entre 2 y 40 caracteres.");
             }
 
             if (!Enum.IsDefined(typeof(CategoriaProductos), categoria))
@@ -192,8 +210,7 @@ namespace TiendaCosmeticos.Services
 
             if (fechaVencimiento.Date < DateTime.Today)
             {
-                throw new TiendaException(
-                    "La fecha de vencimiento no puede ser anterior al día de hoy.");
+                throw new ProductoVencidoException(nombre.Trim(), fechaVencimiento);
             }
         }
     }

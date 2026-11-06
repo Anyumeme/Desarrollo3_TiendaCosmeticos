@@ -35,13 +35,14 @@ namespace TiendaCosmeticos.Commands.Bodega
                     "Buscar por ID",
                     "Mostrar todos los productos",
                     "Buscar por marca",
-                    "Mostrar productos activos",
+                    "Mostrar solo productos activos",
+                    "Mostrar solo productos inactivos",
                     "Volver al menu de bodega");
 
-                string opcion = new Validator("Seleccione (1-5): ")
+                string opcion = new Validator("Seleccione (1-6): ")
                     .NotEmpty()
                     .OnlyDigits()
-                    .InputBetweenXandY(1, 5)
+                    .InputBetweenXandY(1, 6)
                     .ReadAndValidate();
 
                 try
@@ -65,6 +66,10 @@ namespace TiendaCosmeticos.Commands.Bodega
                             break;
 
                         case "5":
+                            MostrarLista(_service.ObtenerSoloInactivos());
+                            break;
+
+                        case "6":
                             regresar = true;
                             break;
                     }
@@ -138,7 +143,7 @@ namespace TiendaCosmeticos.Commands.Bodega
 
         public void Undo()
         {
-            // Las consultas no modifican informacion.
+            
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
-using TiendaCosmeticos.Repositories;
+using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
@@ -11,12 +11,12 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
     public class ListarProductoCommand : ICommand
     {
         private readonly IConsoleWriter _writer;
-        private readonly ProductoRepository _productoRepository;
+        private readonly BodegaServices _bodegaServices;
 
-        public ListarProductoCommand(IConsoleWriter writer, ProductoRepository productoRepository)
+        public ListarProductoCommand(IConsoleWriter writer, BodegaServices bodegaServices)
         {
             _writer = writer;
-            _productoRepository = productoRepository;
+            _bodegaServices = bodegaServices;
         }
 
         public void Execute()
@@ -49,35 +49,39 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                 return;
             }
 
-            // 2. Opcion 7: Busqueda individual por ID
+            // 2. Opcion 7: Busqueda individual por ID a traves del servicio
             if (opcion == "7")
             {
-                string idBuscar = new Validator("\nIngrese el ID del producto (ej. PROD-01): ")
+                string idBuscar = new Validator("\nIngrese el ID del producto (ej. PROD-0001): ")
                     .NotEmpty()
                     .ReadAndValidate();
 
-                Producto? producto = _productoRepository.GetById(idBuscar);
-
-                if (producto == null)
+                try
                 {
-                    _writer.ShowError($"No se encontro ningun producto con el ID '{idBuscar}'.");
-                    _writer.WaitForKey();
-                    return;
+                    Producto producto = _bodegaServices.ObtenerPorId(idBuscar);
+
+                    string estadoTexto = producto.Estado ? "ACTIVO" : "INACTIVO";
+                    string vencidoTexto = producto.EstaVencido() ? "SI (CADUCADO)" : "NO (VIGENTE)";
+
+                    _writer.ShowMessage("\n--- Ficha del Producto ---");
+                    _writer.ShowMessage($"ID:                  {producto.Id}");
+                    _writer.ShowMessage($"Nombre:              {producto.Nombre}");
+                    _writer.ShowMessage($"Marca:               {producto.Marca}");
+                    _writer.ShowMessage($"Categoria:           {producto.Categoria}");
+                    _writer.ShowMessage($"Precio Unitario:     C$ {producto.Precio:N2}");
+                    _writer.ShowMessage($"Stock en Bodega:     {producto.Stock} unidades");
+                    _writer.ShowMessage($"Fecha Vencimiento:   {producto.FechaVencimiento:dd/MM/yyyy}");
+                    _writer.ShowMessage($"¿Esta Vencido?:      {vencidoTexto}");
+                    _writer.ShowMessage($"Estado en Catalogo:  {estadoTexto}");
                 }
-
-                string estadoTexto = producto.Estado ? "ACTIVO" : "INACTIVO";
-                string vencidoTexto = producto.EstaVencido() ? "SI (CADUCADO)" : "NO (VIGENTE)";
-
-                _writer.ShowMessage("\n--- Ficha del Producto ---");
-                _writer.ShowMessage($"ID:                  {producto.Id}");
-                _writer.ShowMessage($"Nombre:              {producto.Nombre}");
-                _writer.ShowMessage($"Marca:               {producto.Marca}");
-                _writer.ShowMessage($"Categoria:           {producto.Categoria}");
-                _writer.ShowMessage($"Precio Unitario:     C$ {producto.Precio:N2}");
-                _writer.ShowMessage($"Stock en Bodega:     {producto.Stock} unidades");
-                _writer.ShowMessage($"Fecha Vencimiento:   {producto.FechaVencimiento:dd/MM/yyyy}");
-                _writer.ShowMessage($"¿Esta Vencido?:      {vencidoTexto}");
-                _writer.ShowMessage($"Estado en Catalogo:  {estadoTexto}");
+                catch (TiendaException ex)
+                {
+                    _writer.ShowError(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    _writer.ShowError($"Ocurrio un error inesperado al consultar el producto: {ex.Message}");
+                }
 
                 _writer.WaitForKey();
                 return;
@@ -90,19 +94,19 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                 switch (opcion)
                 {
                     case "1":
-                        lista = _productoRepository.GetAll();
+                        lista = _bodegaServices.ObtenerTodos();
                         break;
                     case "2":
-                        lista = _productoRepository.GetActivos();
+                        lista = _bodegaServices.ObtenerSoloActivos();
                         break;
                     case "3":
-                        lista = _productoRepository.GetInactivos();
+                        lista = _bodegaServices.ObtenerSoloInactivos();
                         break;
                     case "4":
-                        lista = _productoRepository.GetAll().Where(p => p.EstaVencido()).ToList();
+                        lista = _bodegaServices.ObtenerVencidos();
                         break;
                     case "5":
-                        lista = _productoRepository.GetAll().Where(p => p.Stock <= 5).ToList();
+                        lista = _bodegaServices.ObtenerStockBajo(5);
                         break;
                     case "6":
                         _writer.DisplayMenu(
@@ -127,7 +131,7 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                         }
 
                         CategoriaProductos categoria = (CategoriaProductos)(int.Parse(catOpcion) - 1);
-                        lista = _productoRepository.GetAll().Where(p => p.Categoria == categoria).ToList();
+                        lista = _bodegaServices.ObtenerTodos().Where(p => p.Categoria == categoria).ToList();
                         break;
                 }
 
@@ -138,7 +142,7 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                     return;
                 }
 
-                // 3.tabla
+                // 3. Formato de tabla para presentacion ordenada
                 _writer.ShowMessage("\n" + new string('-', 112));
                 _writer.ShowMessage(string.Format("{0,-10} | {1,-24} | {2,-15} | {3,-16} | {4,10} | {5,6} | {6,-11} | {7,-8}",
                     "ID", "NOMBRE", "MARCA", "CATEGORIA", "PRECIO", "STOCK", "VENCE", "ESTADO"));
@@ -150,7 +154,6 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                     string nombreCorto = p.Nombre.Length > 24 ? p.Nombre.Substring(0, 21) + "..." : p.Nombre;
                     string venceTexto = p.FechaVencimiento.ToString("dd/MM/yyyy");
 
-                    // Si esta vencido, agregar marca visual discreta
                     if (p.EstaVencido())
                     {
                         venceTexto += "*";

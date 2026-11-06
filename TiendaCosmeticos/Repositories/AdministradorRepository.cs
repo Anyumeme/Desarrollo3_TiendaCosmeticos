@@ -37,5 +37,11 @@ namespace TiendaCosmeticos.Repositories
             if (string.IsNullOrWhiteSpace(id)) return null;
             return _administradores.FirstOrDefault(a => string.Equals(a?.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
         }
+
+        public Administrador? GetByCelular(int celular)
+        {
+            if (celular <= 0) return null;
+            return _administradores.FirstOrDefault(a => a != null && a.NumeroCelular == celular);
+        }
     }
 }

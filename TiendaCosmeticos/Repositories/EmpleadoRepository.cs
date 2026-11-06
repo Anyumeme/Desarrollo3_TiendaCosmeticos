@@ -47,6 +47,12 @@ namespace TiendaCosmeticos.Repositories
         {
             return _empleados.Where(e => e.Rol == Rol.Bodeguero).ToList();
         }
+
+        public Empleado? GetByCelular(int celular)
+        {
+            if (celular <= 0) return null;
+            return _empleados.FirstOrDefault(e => e != null && e.NumeroCelular == celular);
+        }
     }
 }
 

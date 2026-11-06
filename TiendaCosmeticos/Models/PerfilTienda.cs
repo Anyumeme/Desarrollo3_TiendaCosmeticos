@@ -50,7 +50,13 @@ namespace TiendaCosmeticos.Models
             {
                 edad--;
             }
-            return Math.Max(0, edad);
+
+            if (edad < 0)
+            {
+                edad = 0;
+            }
+
+            return edad;
         }
 
         public virtual void ActualizarDatosBase(

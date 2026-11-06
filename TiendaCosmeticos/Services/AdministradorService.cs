@@ -32,6 +32,21 @@ namespace TiendaCosmeticos.Services
                 throw new CedulaDuplicadaException(limpia);
         }
 
+        private void ValidarCelularUnico(int celular)
+        {
+            if (_administradorRepository.GetByCelular(celular) != null ||
+                _empleadoRepository.GetByCelular(celular) != null ||
+                _clienteRepository.GetByCelular(celular) != null)
+                throw new CelularDuplicadoException(celular);
+        }
+
+        public bool ExisteCelular(int celular)
+        {
+            return _administradorRepository.GetByCelular(celular) != null ||
+                   _empleadoRepository.GetByCelular(celular) != null ||
+                   _clienteRepository.GetByCelular(celular) != null;
+        }
+
         private void ValidarUsuarioUnico(string user)
         {
             string limpio = user.Trim();
@@ -59,6 +74,7 @@ namespace TiendaCosmeticos.Services
 
             ValidarCedulaUnica(administrador.Cedula);
             ValidarUsuarioUnico(administrador.User);
+            ValidarCelularUnico(administrador.NumeroCelular);
             _administradorRepository.Add(administrador);
         }
 
@@ -100,6 +116,11 @@ namespace TiendaCosmeticos.Services
                 !string.Equals(nuevaCedula.Trim(), admin.Cedula, StringComparison.OrdinalIgnoreCase))
             {
                 ValidarCedulaUnica(nuevaCedula);
+            }
+
+            if (nuevoCelular > 0 && nuevoCelular != admin.NumeroCelular)
+            {
+                ValidarCelularUnico(nuevoCelular);
             }
 
             admin.ActualizarEmpleado(nuevoNombre, nuevoCelular, nuevoGenero, nuevaFechaNacimiento,

@@ -1,7 +1,7 @@
 using System;
 using TiendaCosmeticos.Exceptions;
 using TiendaCosmeticos.Models;
-using TiendaCosmeticos.Repositories;
+using TiendaCosmeticos.Services;
 using TiendaCosmeticos.Util;
 
 namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
@@ -9,12 +9,12 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
     public class CambiarEstadoProductoCommand : ICommand
     {
         private readonly IConsoleWriter _writer;
-        private readonly ProductoRepository _productoRepository;
+        private readonly BodegaServices _bodegaServices;
 
-        public CambiarEstadoProductoCommand(IConsoleWriter writer, ProductoRepository productoRepository)
+        public CambiarEstadoProductoCommand(IConsoleWriter writer, BodegaServices bodegaServices)
         {
             _writer = writer;
-            _productoRepository = productoRepository;
+            _bodegaServices = bodegaServices;
         }
 
         public void Execute()
@@ -33,12 +33,15 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                 return;
             }
 
-            // 2. Busqueda en el catalogo
-            Producto? producto = _productoRepository.GetById(id);
-
-            if (producto == null)
+            // 2. Busqueda en el servicio
+            Producto producto;
+            try
             {
-                _writer.ShowError($"No se encontro ningun producto con el ID '{id}'.");
+                producto = _bodegaServices.ObtenerPorId(id);
+            }
+            catch (TiendaException ex)
+            {
+                _writer.ShowError(ex.Message);
                 _writer.WaitForKey();
                 return;
             }

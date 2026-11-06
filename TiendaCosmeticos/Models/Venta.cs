@@ -12,7 +12,9 @@ namespace TiendaCosmeticos.Models
         public DateTime Fecha { get; private set; }
         public bool Estado { get; private set; } = true;
         public List<DetalleVenta> Detalles { get; private set; } = new List<DetalleVenta>();
-        public decimal Total => Detalles.Sum(d => d.Subtotal);
+        public decimal Subtotal => Detalles.Sum(d => d.Subtotal);
+        public decimal Descuento { get; private set; }
+        public decimal Total => Subtotal - Descuento;
 
         public Venta() { }
         public Venta(Cliente cliente, Empleado vendedor, DateTime fecha)
@@ -22,6 +24,15 @@ namespace TiendaCosmeticos.Models
             Vendedor = vendedor;
             Fecha = fecha;
             Estado = true;
+            Descuento = 0;
+        }
+
+        public void AplicarDescuento(decimal descuento)
+        {
+            if (descuento > 0)
+            {
+                Descuento = descuento;
+            }
         }
 
         public void AgregarDetalle(Producto producto, int cantidad, decimal precioUnitario)

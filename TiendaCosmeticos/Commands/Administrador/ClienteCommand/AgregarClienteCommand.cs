@@ -11,6 +11,8 @@ namespace TiendaCosmeticos.Commands.Administrador.ClienteCommand
         private readonly IConsoleWriter _writer;
         private readonly ClienteService _clienteService;
 
+        public Cliente? ClienteRegistrado { get; private set; }
+
         public AgregarClienteCommand(IConsoleWriter writer, ClienteService clienteService)
         {
             _writer = writer;
@@ -81,6 +83,8 @@ namespace TiendaCosmeticos.Commands.Administrador.ClienteCommand
                     fechaNacimiento,
                     genero
                 );
+
+                ClienteRegistrado = nuevo;
 
                 _writer.ShowMessage("\nCliente registrado exitosamente.");
                 _writer.ShowMessage($"Codigo asignado: {nuevo.Id} | Nombre: {nuevo.Nombre} | Cedula: {nuevo.Cedula}");

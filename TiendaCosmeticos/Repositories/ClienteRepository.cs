@@ -31,6 +31,12 @@ namespace TiendaCosmeticos.Repositories
             if (string.IsNullOrWhiteSpace(cedula)) return null;
             return _clientes.FirstOrDefault(c => string.Equals(c?.Cedula, cedula.Trim(), StringComparison.OrdinalIgnoreCase));
         }
+
+        public Cliente? GetByCelular(int celular)
+        {
+            if (celular <= 0) return null;
+            return _clientes.FirstOrDefault(c => c != null && c.NumeroCelular == celular);
+        }
     }
 }
 

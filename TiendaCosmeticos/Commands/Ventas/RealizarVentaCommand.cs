@@ -169,7 +169,7 @@ namespace TiendaCosmeticos.Commands.Ventas
                 "Cancelar venta"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-3): ")
+            string opcion = new Validator("Ingrese su opcion: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 3)

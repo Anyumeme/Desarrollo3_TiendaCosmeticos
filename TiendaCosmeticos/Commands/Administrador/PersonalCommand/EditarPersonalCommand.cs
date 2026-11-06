@@ -102,7 +102,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 "Femenino",
                 "Masculino"
             );
-            string generoOpcion = new Validator("Ingrese su opcion (1-2): ")
+            string generoOpcion = new Validator("Seleccione el genero: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 2)

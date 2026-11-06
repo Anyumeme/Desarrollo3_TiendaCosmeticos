@@ -35,7 +35,7 @@ namespace TiendaCosmeticos.Commands.Ventas
                 "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-7): ")
+            string opcion = new Validator("Ingrese su opcion: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 7)

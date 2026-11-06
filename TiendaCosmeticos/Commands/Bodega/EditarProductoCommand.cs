@@ -48,7 +48,7 @@ namespace TiendaCosmeticos.Commands.Bodega
                     "Editar otro campo",
                     "Cancelar");
 
-                string opcion = new Validator("Seleccione (1-3): ")
+                string opcion = new Validator("Seleccione una opcion: ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 3)
@@ -146,7 +146,7 @@ namespace TiendaCosmeticos.Commands.Bodega
                 "Stock",
                 "Fecha de vencimiento");
 
-            string opcion = new Validator("Seleccione (1-6): ")
+            string opcion = new Validator("Seleccione el campo a editar: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 6)

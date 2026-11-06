@@ -55,7 +55,7 @@ namespace TiendaCosmeticos.Controllers
                     "Cerrar sesion (Volver al login)"
                 );
 
-                string input = new Validator("Ingrese su opcion (1-6): ")
+                string input = new Validator("Ingrese su opcion: ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 6)

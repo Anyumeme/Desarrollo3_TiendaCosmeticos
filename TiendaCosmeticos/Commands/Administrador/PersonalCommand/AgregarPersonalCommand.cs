@@ -37,7 +37,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 "Administrador (Gestion y Control General)"
             );
 
-            string rolOpcion = new Validator("Ingrese su opcion (1-3): ")
+            string rolOpcion = new Validator("Ingrese su opcion: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 3)
@@ -88,7 +88,7 @@ namespace TiendaCosmeticos.Commands.Administrador.PersonalCommand
                 "Femenino",
                 "Masculino"
             );
-            string generoOpcion = new Validator("Ingrese su opcion (1-2): ")
+            string generoOpcion = new Validator("Seleccione el genero: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 2)

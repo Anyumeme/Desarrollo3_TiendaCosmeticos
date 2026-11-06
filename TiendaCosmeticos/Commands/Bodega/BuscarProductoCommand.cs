@@ -39,7 +39,7 @@ namespace TiendaCosmeticos.Commands.Bodega
                     "Mostrar solo productos inactivos",
                     "Volver al menu anterior");
 
-                string opcion = new Validator("Seleccione (1-6): ")
+                string opcion = new Validator("Seleccione una opcion: ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 6)

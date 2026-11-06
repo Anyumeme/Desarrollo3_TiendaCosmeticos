@@ -37,7 +37,7 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                 "Volver al menu anterior"
             );
 
-            string opcion = new Validator("Ingrese su opcion (1-8): ")
+            string opcion = new Validator("Ingrese su opcion: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 8)
@@ -119,7 +119,7 @@ namespace TiendaCosmeticos.Commands.Administrador.ProductoCommand
                             "Otros",
                             "Volver al menu anterior"
                         );
-                        string catOpcion = new Validator("Ingrese la categoria (1-7): ")
+                        string catOpcion = new Validator("Ingrese la categoria: ")
                             .NotEmpty()
                             .OnlyDigits()
                             .InputBetweenXandY(1, 7)

@@ -58,7 +58,7 @@ namespace TiendaCosmeticos.Commands.Ventas
             }
 
             // Validacion de rango en consola para no permitir cantidades fuera de stock
-            string cantTexto = new Validator($"Cantidad a comprar (1 - {limiteCompra}): ")
+            string cantTexto = new Validator("Cantidad a comprar: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, limiteCompra)
@@ -81,7 +81,7 @@ namespace TiendaCosmeticos.Commands.Ventas
                     "Finalizar seleccion de productos (Terminar compra)"
                 );
 
-                string opcion = new Validator("Ingrese su opcion (1-3): ")
+                string opcion = new Validator("Ingrese su opcion: ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 3)
@@ -164,7 +164,7 @@ namespace TiendaCosmeticos.Commands.Ventas
                 "Volver al menu anterior"
             );
 
-            string catOpcion = new Validator("Ingrese la categoria (1-7): ")
+            string catOpcion = new Validator("Ingrese la categoria: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, 7)
@@ -193,7 +193,7 @@ namespace TiendaCosmeticos.Commands.Ventas
             _writer.ShowMessage($"{disponibles.Count + 1}. Volver al menu anterior");
             _writer.ShowMessage(new string('-', 45));
 
-            string prodOpcion = new Validator($"Seleccione un producto (1-{disponibles.Count + 1}): ")
+            string prodOpcion = new Validator("Seleccione un producto: ")
                 .NotEmpty()
                 .OnlyDigits()
                 .InputBetweenXandY(1, disponibles.Count + 1)

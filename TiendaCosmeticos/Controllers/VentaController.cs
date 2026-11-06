@@ -53,7 +53,7 @@ namespace TiendaCosmeticos.Controllers
                     "Volver al menu principal"
                 );
 
-                string input = new Validator("Ingrese su opcion (1-4): ")
+                string input = new Validator("Ingrese su opcion: ")
                     .NotEmpty()
                     .OnlyDigits()
                     .InputBetweenXandY(1, 4)
